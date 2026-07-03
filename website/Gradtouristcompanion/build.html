@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Build Your Trip — Tourist Companion</title>
+  <link rel="icon" href="favicon.png" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo">Tourist Companion</div>
+    <nav id="nav"></nav>
+  </header>
+
+  <main>
+    <h1>Build your trip</h1>
+    <p class="subtitle">Pick a ready-made program or set your own budget and time —
+      we compute the optimal itinerary from officially priced attractions.</p>
+
+    <div class="presets" id="presets"></div>
+
+    <form id="plan-form" class="card grid">
+      <div>
+        <label for="budget">Budget (EGP, tickets)</label>
+        <input id="budget" type="number" min="1" value="3000" required />
+      </div>
+      <div>
+        <label for="days">Days</label>
+        <input id="days" type="number" min="1" max="14" value="3" required />
+      </div>
+      <div>
+        <label for="hours">Hours / day</label>
+        <input id="hours" type="number" min="2" max="16" step="0.5" value="9" required />
+      </div>
+      <div>
+        <label for="tier">Visitor</label>
+        <select id="tier">
+          <option value="foreign">Foreign visitor</option>
+          <option value="egyptian">Egyptian</option>
+        </select>
+      </div>
+      <div>
+        <label for="student">Ticket type</label>
+        <select id="student">
+          <option value="">Adult</option>
+          <option value="1">Student</option>
+        </select>
+      </div>
+      <div style="grid-column: 1 / -1;">
+        <label>Interests (click to boost)</label>
+        <div class="chips" id="chips">
+          <span class="chip" data-cat="ancient">Ancient Egypt</span>
+          <span class="chip" data-cat="islamic">Islamic Cairo</span>
+          <span class="chip" data-cat="coptic">Coptic heritage</span>
+          <span class="chip" data-cat="museum">Museums</span>
+          <span class="chip" data-cat="palace">Palaces</span>
+          <span class="chip" data-cat="experience">Experiences</span>
+        </div>
+      </div>
+      <button type="submit" class="btn full">Build my trip</button>
+    </form>
+
+    <div id="status"></div>
+    <div id="result"></div>
+  </main>
+
+  <footer class="app-footer">Prices from the Egyptian Ministry of Tourism &amp; Antiquities
+    ticket list; items marked * are estimates pending verification.</footer>
+
+  <script src="js/auth.js"></script>
+  <script>
+    let me = null;
+    let lastPlan = null;
+    let lastParams = null;
+    let activePreset = null;
+
+    const $ = id => document.getElementById(id);
+
+    renderAuthNav('nav').then(u => { me = u; });
+
+    $('chips').addEventListener('click', e => {
+      if (e.target.classList.contains('chip')) e.target.classList.toggle('on');
+    });
+
+    // --- presets ---------------------------------------------------------
+    async function loadPresets() {
+      const res = await fetch('/api/presets');
+      const presets = await res.json();
+      $('presets').innerHTML = presets.map(p => `
+        <div class="preset" data-id="${p.id}" title="${escapeHtml(p.description)}">
+          <img src="${p.image}" alt="${escapeHtml(p.name)}" />
+          <div class="p-name">${escapeHtml(p.name)}</div>
+          <div class="p-desc">${escapeHtml(p.description)}</div>
+        </div>`).join('');
+      $('presets').addEventListener('click', e => {
+        const card = e.target.closest('.preset');
+        if (!card) return;
+        document.querySelectorAll('.preset').forEach(c => c.classList.remove('on'));
+        card.classList.add('on');
+        applyPreset(presets.find(p => p.id === card.dataset.id));
+      });
+      // deep link: build.html?preset=pharaonic
+      const wanted = new URLSearchParams(location.search).get('preset');
+      const preset = presets.find(p => p.id === wanted);
+      if (preset) {
+        document.querySelector(`.preset[data-id="${preset.id}"]`).classList.add('on');
+        applyPreset(preset);
+        buildTrip();
+      }
+    }
+
+    function applyPreset(preset) {
+      activePreset = preset;
+      const p = preset.params;
+      $('budget').value = p.budget;
+      $('days').value = p.days;
+      $('hours').value = p.hours_per_day;
+      $('tier').value = p.tier;
+      $('student').value = p.student ? '1' : '';
+      document.querySelectorAll('.chip').forEach(c =>
+        c.classList.toggle('on', !!(p.preferences && p.preferences[c.dataset.cat])));
+    }
+
+    // --- planning ----------------------------------------------------------
+    $('plan-form').addEventListener('submit', e => { e.preventDefault(); buildTrip(); });
+
+    async function buildTrip() {
+      const status = $('status');
+      $('result').innerHTML = '';
+      status.className = '';
+      status.textContent = 'Computing your optimal itinerary…';
+
+      const preferences = {};
+      document.querySelectorAll('.chip.on').forEach(c => preferences[c.dataset.cat] = 2);
+
+      lastParams = {
+        budget: +$('budget').value,
+        days: +$('days').value,
+        hours_per_day: +$('hours').value,
+        tier: $('tier').value,
+        student: !!$('student').value,
+        preferences: Object.keys(preferences).length ? preferences : null,
+        cities: activePreset && activePreset.params.cities || null,
+      };
+
+      try {
+        const res = await fetch('/api/plan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(lastParams),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.detail || `Request failed (${res.status})`);
+        }
+        lastPlan = await res.json();
+        render(lastPlan);
+        status.textContent = '';
+      } catch (err) {
+        status.className = 'error';
+        status.textContent = err.message;
+      }
+    }
+
+    function render(plan) {
+      const result = $('result');
+      const saveUi = me
+        ? '<span class="spacer"></span><button class="btn secondary" onclick="saveTrip()">Save this trip</button>'
+        : '<span class="spacer"></span><a href="Login.html" style="color:#fff;text-decoration:underline;">Log in to save this trip</a>';
+      result.innerHTML = `
+        <div class="summary">
+          <div><b>${plan.total_places}</b> places</div>
+          <div><b>${plan.total_cost} EGP</b> of ${plan.params.budget} budget</div>
+          <div><b>${plan.days.length}</b> day${plan.days.length > 1 ? 's' : ''}</div>
+          ${saveUi}
+        </div>`;
+      for (const day of plan.days) {
+        const stops = day.stops.map(s => `
+          <div class="stop">
+            <span class="time">${s.arrive}–${s.depart}</span>
+            <span class="name">${escapeHtml(s.name)}${s.needs_verification ? ' *' : ''}
+              <span class="meta"> ${escapeHtml(s.area)} · ★${s.rating}</span>
+              ${s.after_hours ? '<span class="warn"> may run past closing</span>' : ''}
+            </span>
+            <span class="price">${s.price ? s.price + ' EGP' : 'Free'}</span>
+          </div>`).join('');
+        result.innerHTML += `
+          <div class="day">
+            <div class="day-head">
+              <span>Day ${day.day} — ${escapeHtml(day.city)}</span>
+              <span>${day.total_cost} EGP · done by ${day.end}</span>
+            </div>
+            ${stops}
+          </div>`;
+      }
+      if (plan.unscheduled.length) {
+        result.innerHTML += `<p class="warn">Couldn't fit: ${plan.unscheduled.map(escapeHtml).join(', ')} —
+          try more days or hours.</p>`;
+      }
+    }
+
+    // --- saving ------------------------------------------------------------
+    async function saveTrip() {
+      if (!lastPlan) return;
+      const defaultName = activePreset ? activePreset.name
+        : `${lastParams.days}-day trip (${lastParams.budget} EGP)`;
+      const name = prompt('Name this trip:', defaultName);
+      if (!name) return;
+      const status = $('status');
+      try {
+        const res = await fetch('/api/trips', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, params: lastParams, plan: lastPlan }),
+        });
+        if (!res.ok) throw new Error('Could not save (are you still logged in?)');
+        status.className = 'ok';
+        status.innerHTML = 'Trip saved — see <a href="mytrips.html">My Trips</a>.';
+      } catch (err) {
+        status.className = 'error';
+        status.textContent = err.message;
+      }
+    }
+
+    loadPresets();
+  </script>
+</body>
+</html>

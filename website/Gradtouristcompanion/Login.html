@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — Tourist Companion</title>
+  <link rel="icon" href="favicon.png" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo">Tourist Companion</div>
+    <nav id="nav"></nav>
+  </header>
+
+  <main>
+    <div class="card auth-card">
+      <div class="tabs">
+        <div class="tab on" data-mode="login">Log in</div>
+        <div class="tab" data-mode="register">Create account</div>
+      </div>
+
+      <form id="auth-form">
+        <div class="field" id="name-field" style="display:none;">
+          <label for="name">Name</label>
+          <input id="name" type="text" maxlength="60" autocomplete="name" />
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" type="email" required autocomplete="email" />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" type="password" required minlength="8"
+                 autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn full" id="submit-btn">Log in</button>
+      </form>
+
+      <div id="status"></div>
+    </div>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script>
+    let mode = 'login';
+    const $ = id => document.getElementById(id);
+
+    renderAuthNav('nav').then(me => {
+      if (me) window.location.href = 'mytrips.html'; // already logged in
+    });
+
+    document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+      tab.classList.add('on');
+      mode = tab.dataset.mode;
+      $('name-field').style.display = mode === 'register' ? '' : 'none';
+      $('name').required = mode === 'register';
+      $('submit-btn').textContent = mode === 'register' ? 'Create account' : 'Log in';
+      $('password').autocomplete = mode === 'register' ? 'new-password' : 'current-password';
+      $('status').textContent = '';
+    }));
+
+    $('auth-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const status = $('status');
+      status.className = '';
+      status.textContent = mode === 'register' ? 'Creating your account…' : 'Logging in…';
+
+      const body = { email: $('email').value.trim(), password: $('password').value };
+      if (mode === 'register') body.name = $('name').value.trim();
+
+      try {
+        const res = await fetch(`/api/auth/${mode}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          const detail = typeof err.detail === 'string' ? err.detail
+            : 'Please check your details (password must be at least 8 characters).';
+          throw new Error(detail);
+        }
+        const next = new URLSearchParams(location.search).get('next');
+        window.location.href = next || 'build.html';
+      } catch (err) {
+        status.className = 'error';
+        status.textContent = err.message;
+      }
+    });
+  </script>
+</body>
+</html>

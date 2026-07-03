@@ -1,0 +1,25 @@
+# Secrets / local settings (keep .env.example, ignore real .env)
+.env
+
+# Per-machine Claude Code settings (keep shared config, ignore local overrides)
+.claude/settings.local.json
+
+# User data (local database)
+data/app.db
+
+# Python
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+
+# Reference material (third-party, re-downloadable — see README)
+reference/

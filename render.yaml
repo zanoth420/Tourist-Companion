@@ -1,0 +1,14 @@
+# Render.com deployment (free tier). Connect the GitHub repo, and Render
+# reads this file automatically. See README "Deploying" for the walkthrough.
+services:
+  - type: web
+    name: tourist-companion
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --app-dir api --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: TC_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: "3.13.7"

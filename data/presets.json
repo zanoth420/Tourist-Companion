@@ -1,0 +1,85 @@
+[
+  {
+    "id": "pharaonic",
+    "name": "Pharaonic Essentials",
+    "image": "img/Pyramids.jpg",
+    "description": "Giza plateau with pyramid interiors, Saqqara and Dahshur — the ancient-Egypt core, optimized for three days.",
+    "params": {
+      "budget": 6000,
+      "days": 3,
+      "hours_per_day": 9,
+      "tier": "foreign",
+      "student": false,
+      "preferences": { "ancient": 2.5 }
+    }
+  },
+  {
+    "id": "museums",
+    "name": "Museum Grand Tour",
+    "image": "img/Museum.jpg",
+    "description": "The Grand Egyptian Museum, Tahrir, NMEC and Cairo's house museums across two full days.",
+    "params": {
+      "budget": 4500,
+      "days": 2,
+      "hours_per_day": 9,
+      "tier": "foreign",
+      "student": false,
+      "preferences": { "museum": 2.5 }
+    }
+  },
+  {
+    "id": "alexandria",
+    "name": "Alexandria Day Trip",
+    "image": "img/Alex.jpg",
+    "description": "Qaitbay, the Catacombs, the Roman Amphitheatre and more — one packed Mediterranean day.",
+    "params": {
+      "budget": 1500,
+      "days": 1,
+      "hours_per_day": 10,
+      "tier": "foreign",
+      "student": false,
+      "cities": ["Alexandria"]
+    }
+  },
+  {
+    "id": "cairo-heritage",
+    "name": "Islamic & Coptic Cairo",
+    "image": "img/Khan Al-Khalili.jpg",
+    "description": "Mosques, churches, palaces and bazaars of historic Cairo over two days.",
+    "params": {
+      "budget": 2500,
+      "days": 2,
+      "hours_per_day": 8,
+      "tier": "foreign",
+      "student": false,
+      "cities": ["Cairo"],
+      "preferences": { "islamic": 2, "coptic": 2 }
+    }
+  },
+  {
+    "id": "budget",
+    "name": "Egypt on a Budget",
+    "image": "img/great_sphinx.webp",
+    "description": "Two days of the best free and low-cost sights — proof you don't need a big budget.",
+    "params": {
+      "budget": 900,
+      "days": 2,
+      "hours_per_day": 9,
+      "tier": "foreign",
+      "student": false
+    }
+  },
+  {
+    "id": "grand-week",
+    "name": "The Grand Week",
+    "image": "img/pyramids_of_giza.jpg",
+    "description": "Five days, everything worth seeing: Giza, Saqqara, the museums, historic Cairo and Alexandria.",
+    "params": {
+      "budget": 12000,
+      "days": 5,
+      "hours_per_day": 9,
+      "tier": "foreign",
+      "student": false
+    }
+  }
+]

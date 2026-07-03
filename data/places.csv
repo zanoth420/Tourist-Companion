@@ -1,0 +1,51 @@
+id,name,city,area,category,price_foreign_adult,price_foreign_student,price_egyptian_adult,price_egyptian_student,currency,visit_min,open,close,lat,lon,rating,requires,excludes,needs_verification,source,last_verified,notes
+giza-plateau,Giza Pyramids Plateau (general entry),Giza,Giza Plateau,ancient,700,350,60,30,EGP,180,07:00,17:00,29.9773,31.1325,4.7,,,no,mota-pdf-2024-11;pharaohs-2026-01,2026-07-02,Includes exterior views of all pyramids and the Sphinx
+khufu-interior,Great Pyramid of Khufu (interior),Giza,Giza Plateau,ancient,1500,750,100,50,EGP,45,07:00,17:00,29.9792,31.1342,4.6,giza-plateau,,no,pharaohs-2026-01;mota-pdf-2024-11,2026-07-02,Limited daily tickets; closed 12:00-13:00; Egyptian tier from 2024 list
+khafre-interior,Pyramid of Khafre (interior),Giza,Giza Plateau,ancient,280,140,30,10,EGP,30,07:00,17:00,29.9761,31.1308,4.5,giza-plateau,,no,mota-pdf-2024-11,2026-07-02,May close alternately with Menkaure for restoration
+menkaure-interior,Pyramid of Menkaure (interior),Giza,Giza Plateau,ancient,280,140,30,10,EGP,30,07:00,17:00,29.9725,31.1281,4.4,giza-plateau,,no,nileempire-2026;mota-pdf-2024-11,2026-07-02,
+meresankh-tomb,Tomb of Queen Meresankh III,Giza,Giza Plateau,ancient,200,100,20,5,EGP,30,07:00,17:00,29.9780,31.1355,4.8,giza-plateau,,no,mota-pdf-2024-11,2026-07-02,One of the best-preserved tombs on the plateau
+workers-cemetery,Workers' Cemetery,Giza,Giza Plateau,ancient,400,200,,,EGP,45,07:00,17:00,29.9710,31.1370,4.2,giza-plateau,,no,mota-pdf-2024-11,2026-07-02,Minimum 5 tickets per visit; no Egyptian tier listed
+giza-sound-light,Giza Sound & Light Show (evening),Giza,Giza Plateau,experience,600,600,300,300,EGP,60,19:00,21:00,29.9765,31.1375,4.3,,,yes,estimate,2026-07-02,Run by a private operator; verify current price and showtimes
+gem,Grand Egyptian Museum,Giza,Al Remaya,museum,1450,725,200,100,EGP,240,08:30,18:00,29.9939,31.1194,4.8,,,no,gem-official-2026;youm7-2026-04,2026-07-02,Foreign tickets online only (visit-gem.com); price rises to 1590 EGP from Nov 2026
+egyptian-museum,Egyptian Museum (Tahrir),Cairo,Downtown,museum,550,275,30,10,EGP,180,09:00,17:00,30.0478,31.2336,4.6,,,no,nileempire-2026;mota-pdf-2024-11,2026-07-02,
+nmec,National Museum of Egyptian Civilization,Cairo,Fustat,museum,550,275,80,40,EGP,150,09:00,17:00,30.0057,31.2323,4.7,,,no,nileempire-2026;mota-pdf-2024-11,2026-07-02,Royal Mummies Hall included
+islamic-art-museum,Museum of Islamic Art,Cairo,Bab al-Khalq,museum,340,170,20,10,EGP,90,09:00,17:00,30.0447,31.2519,4.6,,,no,mota-pdf-2024-11,2026-07-02,
+coptic-museum,Coptic Museum,Cairo,Coptic Cairo,museum,280,140,20,10,EGP,90,09:00,17:00,30.0060,31.2302,4.6,,,no,nileempire-2026;mota-pdf-2024-11,2026-07-02,
+gayer-anderson,Gayer-Anderson Museum (Bayt al-Kritliyya),Cairo,Sayyida Zeinab,museum,100,50,10,5,EGP,60,09:00,15:00,30.0287,31.2497,4.6,,,no,nileempire-2026;mota-pdf-2024-11,2026-07-02,Adjacent to Ibn Tulun Mosque
+manial-palace,Manial Palace (Prince Mohamed Ali),Cairo,Manial,palace,220,110,20,5,EGP,90,09:00,17:00,30.0225,31.2295,4.6,,,no,mota-pdf-2024-11,2026-07-02,
+royal-carriages,Royal Carriages Museum,Cairo,Bulaq,museum,300,150,30,10,EGP,60,09:00,17:00,30.0614,31.2317,4.5,,,no,mota-pdf-2024-11,2026-07-02,
+citadel,Citadel of Saladin (incl. Muhammad Ali Mosque),Cairo,Citadel,islamic,550,275,60,30,EGP,150,08:00,17:00,30.0299,31.2617,4.6,,,no,nileempire-2026;mota-pdf-2024-11,2026-07-02,
+sultan-hassan,Sultan Hassan & Al-Rifa'i Mosques,Cairo,Citadel area,islamic,220,110,0,0,EGP,60,09:00,17:00,30.0327,31.2564,4.8,,,no,mota-pdf-2024-11,2026-07-02,Free for Egyptians per ministry list
+muizz-street,Al-Mu'izz Street monuments ticket,Cairo,Islamic Cairo,islamic,220,110,20,10,EGP,90,09:00,17:00,30.0511,31.2609,4.7,,,no,mota-pdf-2024-11,2026-07-02,Street itself is free; ticket covers the monuments
+bayt-al-suhaymi,Bayt al-Suhaymi,Cairo,Islamic Cairo,islamic,220,110,10,5,EGP,45,09:00,17:00,30.0530,31.2620,4.5,,,no,mota-pdf-2024-11,2026-07-02,
+al-ghuri,Al-Ghuri Complex,Cairo,Islamic Cairo,islamic,150,75,10,5,EGP,45,09:00,17:00,30.0459,31.2580,4.5,,,no,mota-pdf-2024-11,2026-07-02,Dome + sabil + house
+bab-zuweila,Bab Zuweila,Cairo,Islamic Cairo,islamic,100,50,10,5,EGP,30,09:00,17:00,30.0426,31.2576,4.5,,,no,mota-pdf-2024-11,2026-07-02,Minaret climb with city views
+ibn-tulun,Mosque of Ibn Tulun,Cairo,Sayyida Zeinab,islamic,0,0,0,0,EGP,45,08:00,17:00,30.0287,31.2497,4.7,,,no,mota-pdf-2024-11,2026-07-02,Free entry
+al-azhar,Al-Azhar Mosque,Cairo,Islamic Cairo,islamic,0,0,0,0,EGP,45,09:00,17:00,30.0459,31.2625,4.6,,,no,nileempire-2026,2026-07-02,Free entry; modest dress required
+khan-el-khalili,Khan el-Khalili Bazaar,Cairo,Islamic Cairo,experience,0,0,0,0,EGP,90,10:00,22:00,30.0477,31.2622,4.5,,,no,common-knowledge,2026-07-02,Open-air bazaar; free to walk
+baron-empain,Baron Empain Palace,Cairo,Heliopolis,palace,220,110,60,30,EGP,60,09:00,18:00,30.0868,31.3300,4.4,,,no,mota-pdf-2024-11,2026-07-02,
+nilometer,Nilometer & Manasterly Palace,Cairo,Rhoda Island,islamic,120,60,20,10,EGP,30,09:00,17:00,30.0071,31.2249,4.4,,,no,mota-pdf-2024-11,2026-07-02,Manasterly Palace included in ticket
+hanging-church,The Hanging Church (Al-Muallaqa),Cairo,Coptic Cairo,coptic,0,0,0,0,EGP,30,09:00,16:00,30.0053,31.2301,4.7,,,no,mota-pdf-2024-11,2026-07-02,Free entry
+abu-serga,Abu Serga Church (St. Sergius),Cairo,Coptic Cairo,coptic,0,0,0,0,EGP,20,09:00,16:00,30.0059,31.2305,4.5,,,no,mota-pdf-2024-11,2026-07-02,Free entry; crypt of the Holy Family
+ben-ezra,Ben Ezra Synagogue,Cairo,Coptic Cairo,jewish,0,0,0,0,EGP,20,09:00,16:00,30.0056,31.2310,4.4,,,no,mota-pdf-2024-11,2026-07-02,Free per ministry list; verify after restoration
+amr-mosque,Mosque of Amr ibn al-As,Cairo,Fustat,islamic,0,0,0,0,EGP,30,09:00,16:00,30.0104,31.2327,4.6,,,no,mota-pdf-2024-11,2026-07-02,Oldest mosque in Africa; free entry
+matareya-obelisk,Obelisk of Senusret I (Matareya),Cairo,Matareya,ancient,200,100,10,5,EGP,30,08:00,17:00,30.1290,31.3080,4.2,,,no,mota-pdf-2024-11,2026-07-02,
+cairo-tower,Cairo Tower,Cairo,Zamalek,experience,600,600,200,200,EGP,60,09:00,24:00,30.0459,31.2243,4.5,,,yes,estimate,2026-07-02,Not a ministry site; verify current price
+saqqara,Saqqara Necropolis (general entry),Giza,Saqqara,ancient,600,300,30,10,EGP,180,08:00,17:00,29.8713,31.2166,4.7,,,no,nileempire-2026;mota-pdf-2024-11,2026-07-02,Includes Djoser complex + Teti & Unas pyramids + several tombs
+saqqara-south-tomb,Southern Tomb of Djoser,Giza,Saqqara,ancient,300,150,40,20,EGP,30,08:00,17:00,29.8697,31.2158,4.5,saqqara,saqqara-all-tombs,no,mota-pdf-2024-11,2026-07-02,
+serapeum,Serapeum of Saqqara,Giza,Saqqara,ancient,340,170,20,5,EGP,45,08:00,17:00,29.8757,31.2129,4.6,saqqara,saqqara-all-tombs,no,pharaohs-2026-01;mota-pdf-2024-11,2026-07-02,
+mereruka-tomb,Tomb of Mereruka,Giza,Saqqara,ancient,200,100,20,5,EGP,30,08:00,17:00,29.8730,31.2180,4.6,saqqara,saqqara-all-tombs,no,mota-pdf-2024-11,2026-07-02,
+nk-tombs,New Kingdom Tombs (Horemheb & Bubasteum),Giza,Saqqara,ancient,400,200,20,10,EGP,45,08:00,17:00,29.8680,31.2200,4.4,saqqara,saqqara-all-tombs,no,mota-pdf-2024-11,2026-07-02,
+saqqara-all-tombs,Saqqara All-Tombs combo ticket,Giza,Saqqara,ancient,1000,500,,,EGP,150,08:00,17:00,29.8713,31.2166,4.7,saqqara,saqqara-south-tomb;serapeum;mereruka-tomb;nk-tombs,no,mota-pdf-2024-11,2026-07-02,Covers all individual tomb tickets; no Egyptian tier listed
+dahshur,Dahshur (Bent & Red Pyramids),Giza,Dahshur,ancient,200,100,10,5,EGP,120,08:00,17:00,29.7907,31.2064,4.7,,,no,nileempire-2026;mota-pdf-2024-11,2026-07-02,Red Pyramid interior included
+mit-rahina,Memphis Open-Air Museum (Mit Rahina),Giza,Mit Rahina,ancient,200,100,10,5,EGP,60,08:00,17:00,29.8441,31.2508,4.4,,,no,nileempire-2026;mota-pdf-2024-11,2026-07-02,Colossus of Ramses II
+qaitbay,Citadel of Qaitbay,Alexandria,Anfushi,islamic,200,100,60,30,EGP,90,09:00,19:00,31.2140,29.8853,4.6,,,no,nileempire-2026;mota-pdf-2024-11,2026-07-02,
+kom-el-shoqafa,Catacombs of Kom el-Shoqafa,Alexandria,Karmouz,ancient,200,100,30,10,EGP,90,09:00,17:00,31.1786,29.8925,4.6,,,no,nileempire-2026;mota-pdf-2024-11,2026-07-02,
+pompeys-pillar,Pompey's Pillar (Serapeum of Alexandria),Alexandria,Karmouz,ancient,200,100,20,5,EGP,60,09:00,17:00,31.1824,29.8965,4.4,,,no,nileempire-2026;mota-pdf-2024-11,2026-07-02,
+kom-al-dekka,Roman Amphitheatre (Kom al-Dekka),Alexandria,Downtown,ancient,200,100,20,10,EGP,60,09:00,17:00,31.1945,29.9040,4.4,,,no,nileempire-2026;mota-pdf-2024-11,2026-07-02,Includes Villa of the Birds mosaics
+alex-national-museum,Alexandria National Museum,Alexandria,Downtown,museum,220,110,20,5,EGP,90,09:00,17:00,31.2001,29.9105,4.5,,,yes,mota-pdf-2024-11,2026-07-02,2026 sources list 200; ministry list says 220 — verify
+royal-jewellery,Royal Jewellery Museum,Alexandria,Zizinia,museum,220,110,20,5,EGP,90,09:00,17:00,31.2385,29.9650,4.6,,,no,nileempire-2026;mota-pdf-2024-11,2026-07-02,
+greco-roman,Graeco-Roman Museum,Alexandria,Downtown,museum,400,200,40,20,EGP,120,09:00,17:00,31.1990,29.9080,4.6,,,no,nileempire-2026;mota-pdf-2024-11,2026-07-02,Reopened 2023 after long restoration
+bibliotheca,Bibliotheca Alexandrina,Alexandria,Shatby,experience,100,50,10,5,EGP,120,10:00,19:00,31.2089,29.9092,4.7,,,yes,estimate,2026-07-02,Not a ministry site; verify current admission tiers
+montaza,Montaza Palace Gardens,Alexandria,Montaza,experience,50,50,50,50,EGP,120,08:00,23:00,31.2884,30.0159,4.5,,,yes,estimate,2026-07-02,Gardens entry only; palace closed to public; verify price
+anfushi-tombs,Anfushi Tombs,Alexandria,Anfushi,ancient,100,50,10,5,EGP,45,09:00,17:00,31.2075,29.8790,4.2,,,no,mota-pdf-2024-11,2026-07-02,

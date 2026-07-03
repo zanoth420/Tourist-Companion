@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Turismo reponsive website build using HTML5, CSS3 and Javascript. The complete layout of the page is build using grid layout and flexbox with some cool animations"
+    />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+    <link rel="stylesheet" href="font/stylesheet.css" media="screen" />
+    <link rel="stylesheet" href="css/style.css" media="screen" />
+    <title>Tourist Companion</title>
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header class="header">
+      <div class="container">
+        <div class="navigation">
+          <div class="logo">Tourist Companion</div>
+          <img
+            src="img/nav-icon.svg"
+            class="nav-icon"
+            alt="navigation icon"
+            width="30"
+            height="30"
+          />
+          <ul>
+            <li>
+              <a href="#home"> Home </a>
+            </li>
+            <li>
+              <a href="#about"> About </a>
+            </li>
+            <li>
+              <a href="#tours"> Pick Program </a>
+            </li>
+            <li>
+              <a href="build.html"> Build Program </a>
+            </li>
+            <li>
+              <a href="#reviews"> Reviews </a>
+            </li>
+            <li>
+              <button class="btn" onclick="redirectToOtherPage4()">Login</button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- SECTION HERO -->
+      <section class="section-hero">
+        <div class="container">
+          <div class="hero-content">
+            <h1 class="heading heading--1 margin-bottom">
+              life is short and world is wide the sooner you start exploring it
+              the better
+            </h1>
+            
+          </div>
+        </div>
+      </section>
+
+
+
+      <!-- SECTION ABOUT -->
+      <section class="section-about" id="about">
+        <div class="container about-box" data-aos="fade-up">
+          <div class="about-box__heading">
+            <h3 class="color-blue margin-bottom">About us</h3>
+            <div class="heading heading--1 capitalize">
+              Explore all corners of the world with us
+            </div>
+          </div>
+          <div class="about-box__content">
+            <p class="margin-bottom">
+              Welcome to the Tourist Companion System, your ultimate destination for personalized and hassle-free trip planning. At Tourist Companion, we recognize that every traveler has distinct preferences and desires. Our platform is meticulously crafted to simplify your journey by providing customized trip recommendations that align with your individual tastes. Whether you're craving adventure, cultural immersion, or relaxation, we've got you covered. With a user-friendly interface, we empower you to effortlessly create and manage your dream trips. Join us in unlocking personalized travel experiences and embarking on unforgettable adventures. Travel smart, plan your trips with Tourist Companion!
+            </p>
+            
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION TOURS -->
+      <section class="section-tours" id="tours">
+        <div class="container-box" data-aos="fade-up">
+          <header class="tour-box__heading">
+            <h2 class="heading heading--2 color-blue margin-bottom">
+              our top trips
+            </h2>
+            <p>
+              Egypt is renowned for its rich history, diverse cultural heritage, and mesmerizing landscapes, making it a prime destination for tourists from around the globe. One of the world's oldest civilizations.
+            </p>
+          </header>
+
+          <article class="tour-box__cards">
+            <div class="t-card" data-aos="flip-left" data-aos-duration="1000">
+              <img
+                src="img/Pyramids.jpg"
+                alt="Pyramids"
+                width="500"
+                height="500"
+                class="t-card__img"
+              />
+
+              <div class="t-card__content">
+                <div class="t-card__title">
+                  <h3 class="name">Pharaonic Essentials</h3>
+                  <p class="price">~6,000 EGP</p>
+                </div>
+
+                <div class="t-card__description">
+                  Giza Pyramids > Great Sphinx > Saqqara > Dahshur — optimized live from official ticket prices.
+                </div>
+
+                <div class="t-card__items">
+                  <div class="days">3-Day Program</div>
+                  <button onclick="redirectToOtherPage()">View</button>
+
+                  <!--<div class="likes"
+                    <img
+                      src="img/heart.svg"
+                      alt="heart"
+                      width="20"
+                      height="20"
+                    />
+                    4.9k
+                  </div>-->
+                </div>
+              </div>
+            </div>
+
+            <div class="t-card" data-aos="flip-left" data-aos-duration="1000">
+              <img
+                src="img/Museum.jpg"
+                alt="Museum"
+                width="500"
+                height="500"
+                class="t-card__img"
+              />
+
+              <div class="t-card__content">
+                <div class="t-card__title">
+                  <h3 class="name">Museum Grand Tour</h3>
+                  <p class="price">~4,500 EGP</p>
+                </div>
+
+                <div class="t-card__description">
+                  Grand Egyptian Museum > Egyptian Museum Tahrir > NMEC and Cairo's house museums.
+                </div>
+
+                <div class="t-card__items">
+
+                  <div class="days">2-Day Program</div>
+                  <button onclick="redirectToOtherPage2()">View</button>
+                  <!--<div class="likes">
+                    <img
+                      src="img/heart.svg"
+                      alt="heart"
+                      width="20"
+                      height="20"
+                    />
+                    4.9k
+                  </div>-->
+                </div>
+              </div>
+            </div>
+
+            <div class="t-card" data-aos="flip-left" data-aos-duration="1000">
+              <img
+                src="img/Alex.jpg"
+                alt="Alexandria"
+                width="500"
+                height="500"
+                class="t-card__img"
+              />
+
+              <div class="t-card__content">
+                <div class="t-card__title">
+                  <h3 class="name">Alexandria Day Trip</h3>
+                  <p class="price">~1,500 EGP</p>
+                </div>
+
+                <div class="t-card__description">
+                  Citadel of Qaitbay > Catacombs of Kom el-Shoqafa > Roman Amphitheatre and more.
+                </div>
+
+                <div class="t-card__items">
+                  <div class="days">1-Day Program</div>
+                  <button onclick="redirectToOtherPage3()">View</button>
+                  <!--<div class="likes">
+                    <img
+                      src="img/heart.svg"
+                      alt="heart"
+                      width="20"
+                      height="20"
+                    />
+                    4.8k
+                  </div>-->
+                </div>
+              </div>
+            </div>
+
+            
+        </div>
+      </section>
+
+            <!-- SECTION SEARCH -->
+            <section class="section-search"id="search">
+              <div class="container search-box">
+                <div class="wrapper">
+                  <h3>Destination</h3>
+                  <div class="custom-select">
+                    <select>
+                      <option value="england">Cairo</option>
+                    
+                    </select>
+                    <span class="arrow"></span>
+                  </div>
+                </div>
+      
+                <div class="wrapper">
+                  <h3>Date</h3>
+                  <div class="custom-date">
+                    <input type="date" id="date" />
+                    <img src="./img/calendar.svg" alt="" class="calender-icon" />
+                  </div>
+                </div>
+      
+                <div class="wrapper">
+                  <h3>Budget</h3>
+                  <div class="custom-select">
+                    <select>
+                      <option value="$200">$200</option>
+                      <option value="$500">$500</option>
+                      <option value="$1000">$1000</option>
+                    </select>
+                    <span class="arrow"></span>
+                  </div>
+                </div>
+                <button class="btn">Build Program</button>
+              </div>
+            </section>
+
+      <!-- SECTION REVIEW -->
+      <section class="section-review" id="reviews">
+        <div class="container review-box" data-aos="fade-up">
+          <header class="review-header">
+            <h3 class="color-blue">Our Reviews</h3>
+            <h2 class="heading heading--2">What the people say about us</h2>
+          </header>
+
+          <article class="review-cards">
+            <div class="r-card">
+              <img
+                src="img/user-1.jpg"
+                alt=""
+                class="r-card__img"
+                width="90"
+                height="90"
+              />
+              <div class="r-card__name">ANDREW</div>
+              <span class="quot">&#8223;</span>
+              <div class="r-card__description">
+                Very good experience i really recommend this website.
+              </div>
+              <div class="r-card__rating">
+                <img
+                  src="img/star-grp.svg"
+                  alt="star"
+                  width="100"
+                  height="30"
+                />
+              </div>
+            </div>
+
+            <div class="r-card">
+              <img
+                src="img/user-2.jpg"
+                alt=""
+                class="r-card__img"
+                width="90"
+                height="90"
+              />
+              <div class="r-card__name">LINA</div>
+              <span class="quot">&#8223;</span>
+              <div class="r-card__description">
+                Enjoyed it very much 100% will recommend.
+              </div>
+              <div class="r-card__rating">
+                <img
+                  src="img/star-grp.svg"
+                  alt="star"
+                  width="100"
+                  height="30"
+                />
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <!-- SECTION FOOTER -->
+    <footer class="section-footer">
+      <div class="footer-box container">
+        <div class="contact-details">
+          <h2 class="heading heading--2 margin-bottom">Tourist Companion</h2>
+          <ul class="contact-data">
+            <li class="location">----</li>
+            <li class="phone">+00 000 000 00</li>
+            <li class="email">TouristCompanion@msa.com</li>
+            <li class="social">
+              <img
+                src="./img/logo-whatsapp.svg"
+                alt="whatsapp icon"
+                width="35"
+                height="35"
+              />
+
+              <img
+                src="./img/logo-facebook.svg"
+                alt="facebook icon"
+                width="35"
+                height="35"
+              />
+
+              <img
+                src="./img/logo-instagram.svg"
+                alt="instagram icon"
+                width="35"
+                height="35"
+              />
+
+              <img
+                src="./img/logo-twitter.svg"
+                alt="twitter icon"
+                width="35"
+                height="35"
+              />
+            </li>
+          </ul>
+        </div>
+
+        <nav class="footer-nav" aria-label="navigation">
+          <div class="nav-name">Quick Links</div>
+          <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#tours">Pick Program</a></li>
+            <li><a href="#offers">Build Program</a></li>
+            <li><a href="#">Sign Up</a></li>
+          </ul>
+        </nav>
+
+        <nav class="footer-nav" aria-label="navigation">
+          <div class="nav-name">Popular Destination</div>
+          <ul>
+            <li><a href="#tours">Cairo</a></li>
+            <li><a href="#tours">Alexandria</a></li>
+            
+          </ul>
+        </nav>
+
+        <div class="newsletter">
+          <div class="newsletter__title">News Letter</div>
+          <div class="newsletter__text">
+            ......
+          </div>
+          <form class="newsletter__input">
+            <input type="text" placeholder="example@msa.com" />
+            <img
+              src="./img/send.svg"
+              alt="send icon"
+              class="send-icon"
+              width="36"
+              height="36"
+            />
+          </form>
+        </div>
+
+        
+
+    <!-- SCRIPT -->
+    <script >
+      src="index.js"
+
+      function redirectToOtherPage() {
+            window.location.href = 'build.html?preset=pharaonic';
+        }
+
+        function redirectToOtherPage2() {
+            window.location.href = 'build.html?preset=museums';
+        }
+        function redirectToOtherPage3() {
+            window.location.href = 'build.html?preset=alexandria';
+        }
+
+        function redirectToOtherPage4() {
+            window.location.href = loggedIn ? 'mytrips.html' : 'Login.html';
+        }
+
+        // swap the Login button to "My Trips" when a session exists
+        let loggedIn = false;
+        fetch('/api/auth/me').then(r => {
+            if (!r.ok) return;
+            loggedIn = true;
+            document.querySelectorAll('button.btn').forEach(b => {
+                if (b.textContent.trim() === 'Login') b.textContent = 'My Trips';
+            });
+        }).catch(() => {});
+
+        
+
+
+
+
+    </script>
+    
+
+
+  </body>
+</html>

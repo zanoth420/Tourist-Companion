@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Trips — Tourist Companion</title>
+  <link rel="icon" href="favicon.png" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo">Tourist Companion</div>
+    <nav id="nav"></nav>
+  </header>
+
+  <main>
+    <h1>My trips</h1>
+    <p class="subtitle">Your saved itineraries. Click one to see the full day-by-day plan.</p>
+    <div id="status"></div>
+    <div id="list"></div>
+    <div id="detail"></div>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+
+    renderAuthNav('nav').then(me => {
+      if (!me) { window.location.href = 'Login.html?next=mytrips.html'; return; }
+      loadTrips();
+    });
+
+    async function loadTrips() {
+      const res = await fetch('/api/trips');
+      const trips = await res.json();
+      if (!trips.length) {
+        $('list').innerHTML = `<div class="card">No saved trips yet —
+          <a href="build.html">build one</a> and hit “Save this trip”.</div>`;
+        return;
+      }
+      $('list').innerHTML = trips.map(t => `
+        <div class="trip-row" data-id="${t.id}">
+          <span class="t-name">${escapeHtml(t.name)}</span>
+          <span class="t-meta">${t.days} day${t.days > 1 ? 's' : ''} ·
+            ${t.total_places} places · ${t.total_cost} EGP ·
+            saved ${t.created_at.slice(0, 10)}</span>
+          <button class="btn secondary" onclick="showTrip(${t.id})">View</button>
+          <button class="btn danger" onclick="deleteTrip(${t.id})">Delete</button>
+        </div>`).join('');
+    }
+
+    async function showTrip(id) {
+      const res = await fetch(`/api/trips/${id}`);
+      if (!res.ok) return;
+      const trip = await res.json();
+      const plan = trip.plan;
+      let html = `
+        <div class="summary">
+          <div><b>${escapeHtml(trip.name)}</b></div>
+          <div><b>${plan.total_places}</b> places</div>
+          <div><b>${plan.total_cost} EGP</b></div>
+        </div>`;
+      for (const day of plan.days) {
+        const stops = day.stops.map(s => `
+          <div class="stop">
+            <span class="time">${s.arrive}–${s.depart}</span>
+            <span class="name">${escapeHtml(s.name)}
+              <span class="meta"> ${escapeHtml(s.area)} · ★${s.rating}</span></span>
+            <span class="price">${s.price ? s.price + ' EGP' : 'Free'}</span>
+          </div>`).join('');
+        html += `
+          <div class="day">
+            <div class="day-head">
+              <span>Day ${day.day} — ${escapeHtml(day.city)}</span>
+              <span>${day.total_cost} EGP · done by ${day.end}</span>
+            </div>
+            ${stops}
+          </div>`;
+      }
+      $('detail').innerHTML = html;
+      $('detail').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function deleteTrip(id) {
+      if (!confirm('Delete this trip?')) return;
+      await fetch(`/api/trips/${id}`, { method: 'DELETE' });
+      $('detail').innerHTML = '';
+      loadTrips();
+    }
+  </script>
+</body>
+</html>

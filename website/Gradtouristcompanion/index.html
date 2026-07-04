@@ -12,6 +12,30 @@
     <link rel="stylesheet" href="font/stylesheet.css" media="screen" />
     <link rel="stylesheet" href="css/style.css" media="screen" />
     <title>Tourist Companion</title>
+    <!-- Mobile nav: the template shipped the hamburger icon but no open/close
+         behaviour. This makes it a working dropdown on small screens. -->
+    <style>
+      @media only screen and (max-width: 50em) {
+        .header .navigation ul {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          flex-direction: column;
+          gap: 0.6rem;
+          margin: 0;
+          padding: 1.2rem 0;
+          background-color: var(--color-blue);
+          border-bottom: 1px solid #fff;
+        }
+        .header .navigation.nav-open ul {
+          display: flex;
+        }
+        .nav-icon {
+          cursor: pointer;
+        }
+      }
+    </style>
   </head>
   <body>
     <!-- HEADER -->
@@ -385,9 +409,7 @@
         
 
     <!-- SCRIPT -->
-    <script >
-      src="index.js"
-
+    <script>
       function redirectToOtherPage() {
             window.location.href = 'build.html?preset=pharaonic';
         }
@@ -413,11 +435,14 @@
             });
         }).catch(() => {});
 
-        
-
-
-
-
+        // Mobile hamburger: toggle the dropdown, and close it after a tap.
+        const navigation = document.querySelector('.navigation');
+        document.querySelector('.nav-icon').addEventListener('click', () => {
+            navigation.classList.toggle('nav-open');
+        });
+        navigation.querySelectorAll('ul a, ul button').forEach(el => {
+            el.addEventListener('click', () => navigation.classList.remove('nav-open'));
+        });
     </script>
     
 

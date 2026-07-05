@@ -111,5 +111,35 @@
       "tier": "foreign",
       "student": false
     }
+  },
+  {
+    "id": "sharm-red-sea",
+    "name": "Sharm & Ras Mohammed",
+    "image": "img/header-bg-img.jpg",
+    "description": "Two Red Sea days in Sharm el-Sheikh — Ras Mohammed's reefs and mangroves, the town museum, Naama Bay and the old market.",
+    "params": {
+      "budget": 2000,
+      "days": 2,
+      "hours_per_day": 9,
+      "tier": "foreign",
+      "student": false,
+      "cities": ["Sharm el-Sheikh"],
+      "preferences": { "nature": 2 }
+    }
+  },
+  {
+    "id": "sinai-explorer",
+    "name": "Sinai: Dahab & St Catherine",
+    "image": "img/offer-img.jpg",
+    "description": "Laid-back Dahab — the Blue Hole, Blue Lagoon and house reefs — paired with the climb up Mount Sinai and St Catherine's Monastery.",
+    "params": {
+      "budget": 2500,
+      "days": 3,
+      "hours_per_day": 9,
+      "tier": "foreign",
+      "student": false,
+      "cities": ["Dahab", "Saint Catherine"],
+      "preferences": { "nature": 2 }
+    }
   }
 ]

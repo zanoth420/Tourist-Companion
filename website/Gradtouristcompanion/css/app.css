@@ -28,20 +28,20 @@
 }
 
 :root[data-theme="light"] {
-  --bg: #faf6ec;
-  --surface: #ffffff;
-  --surface-2: #f4ecd8;
-  --header-bg: #fbf7ee;
-  --border: #e7dcc2;
-  --border-strong: #d8c9a3;
-  --text: #2a2114;
-  --text-muted: #8a7a55;
-  --gold: #b8862f;
-  --gold-strong: #9c6f1e;
+  --bg: #f3e7cb;          /* warm sand — softer than the old bright ivory */
+  --surface: #fbf4e3;
+  --surface-2: #ede0c2;
+  --header-bg: #f8f0dc;
+  --border: #e4d4ad;
+  --border-strong: #d0ba86;
+  --text: #3a2c18;
+  --text-muted: #8a7448;
+  --gold: #b07d24;
+  --gold-strong: #935f14;
   --on-gold: #ffffff;
   --danger: #b0431f;
   --ok: #3b7d2f;
-  --shadow: 0 6px 20px rgba(120, 90, 30, .12);
+  --shadow: 0 6px 20px rgba(120, 90, 30, .14);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }

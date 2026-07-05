@@ -75,3 +75,31 @@ high-dam,Aswan High Dam,Aswan,High Dam,experience,120,120,20,20,EGP,30,7:00,17:0
 kom-ombo,Temple of Kom Ombo,Kom Ombo,Kom Ombo,ancient,450,225,40,20,EGP,60,7:00,21:00,24.4522,32.9281,4.6,,,no,mota-pdf-2024-11,7/4/2026,Dual temple of Sobek and Haroeris; Crocodile Museum included
 edfu,Temple of Edfu (Horus),Edfu,Edfu,ancient,550,275,40,20,EGP,75,7:00,17:00,24.9779,32.8732,4.7,,,no,mota-pdf-2024-11,7/4/2026,Best-preserved major temple in Egypt
 abu-simbel,Abu Simbel Temples,Abu Simbel,Abu Simbel,ancient,750,375,30,10,EGP,120,6:00,17:00,22.3372,31.6258,4.9,,,no,mota-pdf-2024-11,7/4/2026,~3.5h drive from Aswan; twice-yearly sun alignment
+ras-mohammed,Ras Mohammed National Park,Sharm el-Sheikh,Ras Mohammed,nature,300,150,60,30,EGP,180,8:00,17:00,27.7333,34.25,4.7,,,yes,eea-reserve;web-2025,7/6/2026,South Sinai reserve fees raised Dec 2025; ~300 EGP foreign — confirm on arrival; car toll 25 EGP each way
+nabq-protectorate,Nabq Protected Area,Sharm el-Sheikh,Nabq,nature,100,50,20,10,EGP,120,8:00,17:00,28.05,34.42,4.3,,,yes,eea-reserve,7/6/2026,Mangrove protectorate north of Sharm; entry fee approximate — verify
+sharm-museum,Sharm el-Sheikh Museum,Sharm el-Sheikh,El Salam Road,museum,200,100,40,20,EGP,90,10:00,23:00,27.9316,34.335,4.6,,,no,mota-pdf-2024-11,7/6/2026,Split hours 10:00-13:00 and 17:00-23:00
+naama-bay,Naama Bay Promenade,Sharm el-Sheikh,Naama Bay,experience,0,0,0,0,EGP,90,8:00,23:00,27.9158,34.3299,4.4,,,no,poi,7/6/2026,Free seafront promenade with cafes and diving hub
+sharm-old-market,Sharm Old Market,Sharm el-Sheikh,Old Market,experience,0,0,0,0,EGP,60,9:00,23:00,27.86,34.3,4.2,,,no,poi,7/6/2026,Bazaars and local eateries
+mustafa-mosque,Al Sahaba (Al Mustafa) Mosque,Sharm el-Sheikh,Old Market,islamic,0,0,0,0,EGP,30,8:00,20:00,27.8586,34.2997,4.5,,,no,poi,7/6/2026,Landmark mosque; modest dress required
+blue-hole,Blue Hole,Dahab,Blue Hole,nature,0,0,0,0,EGP,120,6:00,18:00,28.5722,34.5372,4.6,,,no,poi,7/6/2026,World-famous dive/snorkel site; free shore access; diving via operator
+abu-galum,Ras Abu Galum & Blue Lagoon,Dahab,Abu Galum,nature,500,250,50,25,EGP,180,6:00,18:00,28.63,34.55,4.7,,,yes,eea-reserve;web-2025,7/6/2026,Protectorate reached by boat or camel from Blue Hole; fee approximate — verify
+three-pools,Three Pools,Dahab,Three Pools,nature,0,0,0,0,EGP,90,6:00,18:00,28.4,34.51,4.5,,,no,poi,7/6/2026,Snorkeling lagoon south of town; free shore access
+dahab-lighthouse,Lighthouse Reef,Dahab,Masbat,nature,0,0,0,0,EGP,90,6:00,18:00,28.508,34.52,4.4,,,no,poi,7/6/2026,Central house reef off the promenade
+dahab-promenade,Dahab Promenade (Masbat),Dahab,Masbat,experience,0,0,0,0,EGP,60,8:00,23:00,28.5091,34.5136,4.5,,,no,poi,7/6/2026,Seafront strip of Bedouin cafes and shops
+sokhna-beach,Ain Sokhna Beach,Ain Sokhna,Corniche,nature,0,0,0,0,EGP,120,8:00,18:00,29.6,32.35,4.2,,,no,poi,7/6/2026,Public Red Sea beach lined with resorts
+galala-city,Galala City & Mountain Road,Ain Sokhna,Galala,nature,0,0,0,0,EGP,120,8:00,18:00,29.2,32.4,4.4,,,no,poi,7/6/2026,Clifftop resort city with panoramic mountain views
+sokhna-springs,Ain Sokhna Sulfur Springs,Ain Sokhna,Corniche,nature,0,0,0,0,EGP,45,8:00,17:00,29.5833,32.3167,3.9,,,no,poi,7/6/2026,The hot spring the town is named after
+st-anthony,Monastery of St Anthony,Ain Sokhna,Eastern Desert,coptic,0,0,0,0,EGP,90,9:00,17:00,28.9167,32.35,4.6,,,no,mota-pdf-2024-11,7/6/2026,World's oldest active monastery; ~2h inland from Sokhna
+st-paul,Monastery of St Paul,Ain Sokhna,Eastern Desert,coptic,0,0,0,0,EGP,90,9:00,17:00,28.85,32.55,4.5,,,no,mota-pdf-2024-11,7/6/2026,Desert monastery near the Red Sea mountains
+st-catherine-monastery,St Catherine's Monastery,Saint Catherine,St Catherine,coptic,0,0,0,0,EGP,90,9:00,12:00,28.556,33.9756,4.7,,,no,mota-pdf-2024-11,7/6/2026,UNESCO site; free entry; morning only; closed Fri & Sun
+mount-sinai,Mount Sinai (Gebel Musa),Saint Catherine,St Catherine,nature,0,0,0,0,EGP,300,0:00,23:59,28.5394,33.975,4.8,,,no,poi,7/6/2026,Sunrise summit hike; mandatory Bedouin guide arranged locally (~$25) — not an entry ticket
+hurghada-museum,Hurghada Museum,Hurghada,Village Road,museum,200,100,80,40,EGP,90,10:00,23:00,27.2894,33.79,4.5,,,no,mota-pdf-2024-11,7/6/2026,Split hours 10:00-13:00 and 17:00-23:00
+giftun-island,Giftun Island (Orange Bay),Hurghada,Giftun,nature,100,50,20,10,EGP,240,8:00,17:00,27.19,33.95,4.6,,,yes,eea-reserve,7/6/2026,Boat day-trip via operator; island marine fee approximate — verify
+hurghada-marina,Hurghada Marina Boulevard,Hurghada,Marina,experience,0,0,0,0,EGP,90,9:00,23:00,27.228,33.841,4.4,,,no,poi,7/6/2026,Waterfront promenade of restaurants and yachts
+hurghada-grand-mosque,El Mina Mosque,Hurghada,Downtown,islamic,0,0,0,0,EGP,30,8:00,20:00,27.2286,33.8385,4.5,,,no,poi,7/6/2026,Hurghada's landmark grand mosque
+quseir-citadel,Al-Quseir Citadel,El Quseir,El Quseir,islamic,100,50,10,5,EGP,60,9:00,17:00,26.105,34.28,4.3,,,no,mota-pdf-2024-11,7/6/2026,Ottoman fort on the Red Sea; ~140 km south of Hurghada
+colored-canyon,Colored Canyon,Nuweiba,Colored Canyon,nature,100,50,20,10,EGP,180,8:00,16:00,29.05,34.63,4.7,,,yes,eea-reserve;web-2025,7/6/2026,4x4 and guide from Nuweiba; protectorate fee approximate — verify
+nuweiba-beach,Nuweiba & Tarabin Beach,Nuweiba,Tarabin,nature,0,0,0,0,EGP,120,8:00,18:00,29.0333,34.6667,4.3,,,no,poi,7/6/2026,Quiet Gulf of Aqaba beach with Bedouin camps
+ain-khudra,Ain Khudra Oasis,Nuweiba,Ain Khudra,nature,0,0,0,0,EGP,120,8:00,16:00,28.95,34.45,4.4,,,no,poi,7/6/2026,Desert oasis on the Wisdom Valley route; guide arranged locally
+taba-citadel,Salah al-Din Citadel (Pharaoh's Island),Taba,Pharaoh's Island,islamic,400,200,20,10,EGP,90,9:00,17:00,29.4667,34.7,4.5,,,no,mota-pdf-2024-11,7/6/2026,Crusader-era island fortress; short boat crossing
+taba-fjord,Fjord Bay,Taba,Taba Heights,nature,0,0,0,0,EGP,90,8:00,18:00,29.42,34.75,4.5,,,no,poi,7/6/2026,Scenic horseshoe lagoon between mountains and sea

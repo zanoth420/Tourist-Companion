@@ -21,14 +21,16 @@ async function renderAuthNav(navId) {
   const me = await getMe();
   const base = '<a href="index.html">Home</a><a href="programs.html">Programs</a>'
     + '<a href="build.html">Build Trip</a>';
+  const toggle = typeof themeToggleHtml === 'function' ? themeToggleHtml() : '';
   if (me) {
     nav.innerHTML = base
       + '<a href="mytrips.html">My Trips</a>'
       + `<span class="user">${escapeHtml(me.name)}</span>`
-      + '<a href="#" onclick="logout();return false;">Logout</a>';
+      + '<a href="#" onclick="logout();return false;">Logout</a>' + toggle;
   } else {
-    nav.innerHTML = base + '<a href="Login.html">Login</a>';
+    nav.innerHTML = base + '<a href="Login.html">Login</a>' + toggle;
   }
+  if (typeof updateThemeIcons === 'function') updateThemeIcons();
   return me;
 }
 

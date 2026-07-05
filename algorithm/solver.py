@@ -50,13 +50,22 @@ def load_places(path, tier, student, cities):
     return places
 
 
-def place_value(place, weights=None):
-    """Integer objective value: rating scaled by the category preference weight."""
+# How the spend preference biases the objective. Rating is scaled to 1000 so a
+# per-EGP cost term is a proportionate nudge (1 EGP ~= 0.001 rating stars):
+#   value   -> subtract cost, so free/cheap high-rated places win (thriftier)
+#   balanced-> pure rating within budget (the default)
+#   premium -> add cost, so the plan spends the budget on premium attractions
+SPEND_BIAS = {"value": -1, "balanced": 0, "premium": 1}
+
+
+def place_value(place, weights=None, spend_bias=0):
+    """Integer objective value: preference-weighted rating, biased by cost."""
     w = (weights or {}).get(place["category"], 1.0)
-    return round(place["rating"] * 10 * w)
+    return round(place["rating"] * 1000 * w) + spend_bias * place["price"]
 
 
-def solve(places, budget, max_minutes=None, weights=None, locked=None, excluded=None):
+def solve(places, budget, max_minutes=None, weights=None, locked=None,
+          excluded=None, spend="balanced"):
     """locked: place ids that must be in the plan; excluded: ids that must not.
 
     Excluded places are removed before solving, so anything that requires
@@ -93,7 +102,8 @@ def solve(places, budget, max_minutes=None, weights=None, locked=None, excluded=
             if other in by_id:
                 model.add(x[p["id"]] + x[other] <= 1)
 
-    model.maximize(sum(x[p["id"]] * place_value(p, weights) for p in places))
+    bias = SPEND_BIAS.get(spend, 0)
+    model.maximize(sum(x[p["id"]] * place_value(p, weights, bias) for p in places))
 
     solver = cp_model.CpSolver()
     status = solver.solve(model)
@@ -110,6 +120,8 @@ def main():
     ap.add_argument("--student", action="store_true", help="use student prices")
     ap.add_argument("--hours", type=float, help="cap total sightseeing hours")
     ap.add_argument("--city", action="append", help="limit to city (repeatable)")
+    ap.add_argument("--spend", choices=["value", "balanced", "premium"],
+                    default="balanced", help="bias toward cheap or premium places")
     ap.add_argument("--data", type=Path, default=DATA_FILE)
     args = ap.parse_args()
 
@@ -118,7 +130,7 @@ def main():
         sys.exit("No places match the given filters.")
 
     max_minutes = round(args.hours * 60) if args.hours else None
-    chosen, status = solve(places, args.budget, max_minutes)
+    chosen, status = solve(places, args.budget, max_minutes, spend=args.spend)
     if chosen is None:
         sys.exit(f"No feasible itinerary (solver status: {status}).")
 

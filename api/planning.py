@@ -24,6 +24,7 @@ class PlanRequest(BaseModel):
     locked: list[str] | None = Field(None, max_length=50)    # must-see place ids
     excluded: list[str] | None = Field(None, max_length=100)  # removed place ids
     start_date: str | None = Field(None, pattern=r"^\d{4}-\d{2}-\d{2}$")
+    spend: str = Field("balanced", pattern="^(value|balanced|premium)$")
 
 
 @router.get("/places")
@@ -45,6 +46,6 @@ def post_plan(req: PlanRequest):
                             days=req.days, hours_per_day=req.hours_per_day,
                             weights=req.preferences, cities=req.cities,
                             locked=req.locked, excluded=req.excluded,
-                            start_date=req.start_date)
+                            start_date=req.start_date, spend=req.spend)
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))

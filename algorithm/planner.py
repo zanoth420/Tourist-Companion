@@ -26,7 +26,7 @@ TRAVEL_OVERHEAD = 0.85  # fraction of trip hours assumed available for visits
 
 def plan(budget, tier="foreign", student=False, days=3, hours_per_day=9.0,
          weights=None, cities=None, data_file=DATA_FILE,
-         locked=None, excluded=None, start_date=None):
+         locked=None, excluded=None, start_date=None, spend="balanced"):
     places = load_places(data_file, tier, student, cities)
     if not places:
         raise ValueError("No places match the given filters.")
@@ -34,7 +34,7 @@ def plan(budget, tier="foreign", student=False, days=3, hours_per_day=9.0,
     cap = round(days * hours_per_day * 60 * TRAVEL_OVERHEAD)
     for _ in range(3):
         chosen, status = solve(places, budget, max_minutes=cap, weights=weights,
-                               locked=locked, excluded=excluded)
+                               locked=locked, excluded=excluded, spend=spend)
         if chosen is None:
             raise ValueError(f"No feasible plan (solver status: {status}). "
                              "If you locked places, they may not fit the budget.")
@@ -101,12 +101,14 @@ def main():
                     help="e.g. --prefer ancient=2 (categories: ancient, islamic, "
                          "coptic, jewish, museum, palace, experience)")
     ap.add_argument("--city", action="append", help="limit to city (repeatable)")
+    ap.add_argument("--spend", choices=["value", "balanced", "premium"],
+                    default="balanced", help="bias toward cheap or premium places")
     ap.add_argument("--data", type=Path, default=DATA_FILE)
     args = ap.parse_args()
 
     result = plan(args.budget, args.tier, args.student, args.days,
                   args.hours_per_day, parse_prefer(args.prefer), args.city,
-                  args.data)
+                  args.data, spend=args.spend)
 
     print(f"\nTrip plan — {args.days} day(s), budget {args.budget} EGP "
           f"({args.tier} {'student' if args.student else 'adult'}):")

@@ -70,13 +70,43 @@
     }
   },
   {
+    "id": "luxor-thebes",
+    "name": "Luxor: Thebes in Two Days",
+    "image": "img/Antiques.jpg",
+    "description": "Karnak and Luxor Temple on the east bank, then the Valley of the Kings, Hatshepsut and the tombs on the west.",
+    "params": {
+      "budget": 5000,
+      "days": 2,
+      "hours_per_day": 9,
+      "tier": "foreign",
+      "student": false,
+      "cities": ["Luxor"],
+      "preferences": { "ancient": 2 }
+    }
+  },
+  {
+    "id": "aswan-abu-simbel",
+    "name": "Aswan & Abu Simbel",
+    "image": "img/header-bg-img.jpg",
+    "description": "Philae, the Unfinished Obelisk and the Nubia Museum, plus the great temples of Abu Simbel.",
+    "params": {
+      "budget": 4000,
+      "days": 2,
+      "hours_per_day": 10,
+      "tier": "foreign",
+      "student": false,
+      "cities": ["Aswan", "Abu Simbel"],
+      "preferences": { "ancient": 2 }
+    }
+  },
+  {
     "id": "grand-week",
     "name": "The Grand Week",
     "image": "img/pyramids_of_giza.jpg",
-    "description": "Five days, everything worth seeing: Giza, Saqqara, the museums, historic Cairo and Alexandria.",
+    "description": "Eight days across Egypt: Giza and Saqqara, historic Cairo, the temples of Luxor, and Aswan with Abu Simbel.",
     "params": {
-      "budget": 12000,
-      "days": 5,
+      "budget": 22000,
+      "days": 8,
       "hours_per_day": 9,
       "tier": "foreign",
       "student": false

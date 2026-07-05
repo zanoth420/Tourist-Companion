@@ -20,12 +20,14 @@ def test_dependent_tickets_same_day_parent_first():
                     "parent must come before child"
 
 
-def test_no_alexandria_cairo_mixing():
-    result = plan(budget=8000, days=5)
+def test_no_region_mixing_within_a_day():
+    """A single day must stay within one geographic region — never mix, say,
+    Luxor with Cairo or Alexandria."""
+    from scheduler import _zone
+    result = plan(budget=20000, days=8)
     for day in result["days"]:
-        cities = {s["place"]["city"] for s in day["stops"]}
-        if "Alexandria" in cities:
-            assert cities == {"Alexandria"}
+        zones = {_zone(s["place"]) for s in day["stops"]}
+        assert len(zones) == 1, f"day {day['day']} mixed regions: {zones}"
 
 
 def test_days_end_within_limit():

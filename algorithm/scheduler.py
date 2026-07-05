@@ -44,8 +44,20 @@ def _fmt(minutes):
     return f"{minutes // 60:02d}:{minutes % 60:02d}"
 
 
+# Cities that share a day-trip region (so a single day never spans regions
+# that are hundreds of km apart). Cairo + Giza are one metro area; the
+# Luxor-Aswan corridor sites group by their nearest hub.
+_REGION = {
+    "Cairo": "greater-cairo", "Giza": "greater-cairo",
+    "Alexandria": "alexandria",
+    "Luxor": "luxor",
+    "Aswan": "aswan", "Edfu": "aswan", "Kom Ombo": "aswan",
+    "Abu Simbel": "abu-simbel",
+}
+
+
 def _zone(place):
-    return "alex" if place["city"] == "Alexandria" else "cairo"
+    return _REGION.get(place["city"], place["city"])
 
 
 def _clusters(places):
@@ -99,9 +111,15 @@ def schedule(places, days, hours_per_day):
         units = _clusters(remaining)
         if not units:
             break
-        # seed with the most time-constrained (earliest-closing) unit;
-        # ties go to the higher-rated one
-        seed = min(units, key=lambda u: (min(_to_min(p["close"]) for p in u),
+        # Seed the smallest remaining region first, so an isolated cluster
+        # (e.g. Abu Simbel, far from everything) claims its own day instead of
+        # being stranded once a bigger region fills the schedule. Within that,
+        # prefer the earliest-closing unit, then the higher-rated one.
+        zone_size = {}
+        for u in units:
+            zone_size[_zone(u[0])] = zone_size.get(_zone(u[0]), 0) + len(u)
+        seed = min(units, key=lambda u: (zone_size[_zone(u[0])],
+                                         min(_to_min(p["close"]) for p in u),
                                          -max(p["rating"] for p in u)))
         chain = list(seed)
         zone = _zone(chain[0])

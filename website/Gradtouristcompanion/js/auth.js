@@ -19,7 +19,8 @@ async function logout() {
 async function renderAuthNav(navId) {
   const nav = document.getElementById(navId);
   const me = await getMe();
-  const base = '<a href="index.html">Home</a><a href="build.html">Build Trip</a>';
+  const base = '<a href="index.html">Home</a><a href="programs.html">Programs</a>'
+    + '<a href="build.html">Build Trip</a>';
   if (me) {
     nav.innerHTML = base
       + '<a href="mytrips.html">My Trips</a>'

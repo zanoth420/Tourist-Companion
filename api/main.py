@@ -20,6 +20,7 @@ import config
 import auth
 import db
 import planning
+import rates
 import trips
 
 
@@ -31,8 +32,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Tourist Companion API", lifespan=lifespan)
 app.include_router(planning.router)
+app.include_router(rates.router)
 app.include_router(auth.router)
 app.include_router(trips.router)
+app.include_router(trips.public)
 
 # mounted last so /api/* wins; html=True serves index.html at /
 app.mount("/", StaticFiles(directory=config.SITE_DIR, html=True), name="site")

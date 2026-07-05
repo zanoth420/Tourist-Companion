@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shared Trip — Tourist Companion</title>
+  <link rel="icon" href="favicon.png" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo">Tourist Companion</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="programs.html">Programs</a>
+      <a href="build.html">Build Trip</a>
+    </nav>
+  </header>
+
+  <main>
+    <div id="status"></div>
+    <div id="content"></div>
+  </main>
+
+  <footer class="app-footer">Shared via Tourist Companion —
+    <a href="build.html">plan your own trip</a>.</footer>
+
+  <script src="js/itinerary.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    let trip = null;
+
+    (async () => {
+      const token = new URLSearchParams(location.search).get('t');
+      if (!token) { fail('Missing share token.'); return; }
+      const res = await fetch(`/api/shared/${encodeURIComponent(token)}`);
+      if (!res.ok) {
+        fail('This share link is invalid or was revoked by its owner.');
+        return;
+      }
+      trip = await res.json();
+      const esc = s => { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
+      const plan = trip.plan;
+      document.title = `${trip.name} — Tourist Companion`;
+      $('content').innerHTML = `
+        <h1>${esc(trip.name)}</h1>
+        <p class="subtitle">A shared itinerary · ${plan.total_places} places
+          over ${plan.days.length} day${plan.days.length > 1 ? 's' : ''}</p>
+        <div class="summary">
+          <div><b>${plan.total_places}</b> places</div>
+          <div><b><span data-egp="${plan.total_cost}">${Currency.fmt(plan.total_cost)}</span></b> in tickets</div>
+          <div><b>${plan.days.length}</b> day${plan.days.length > 1 ? 's' : ''}</div>
+        </div>
+        <div class="toolbar no-print">
+          <button class="btn secondary" onclick="window.print()">Print / PDF</button>
+          <button class="btn secondary" onclick="downloadIcs(trip.plan, trip.name)">
+            Add to calendar (.ics)</button>
+          <label for="currency" style="margin:0 0 0 auto;">Currency</label>
+          <select id="currency">
+            <option>EGP</option><option>USD</option><option>EUR</option><option>GBP</option>
+          </select>
+        </div>
+        <div id="days-container"></div>`;
+      renderItinerary($('days-container'), plan);
+      Currency.init($('currency'));
+    })();
+
+    function fail(msg) {
+      $('status').className = 'error';
+      $('status').textContent = msg;
+    }
+  </script>
+</body>
+</html>

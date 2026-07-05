@@ -9,6 +9,7 @@ import hashlib
 import hmac
 import secrets
 import sqlite3
+import time
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
@@ -21,6 +22,24 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 PBKDF2_ITERATIONS = 600_000
 EMAIL_PATTERN = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
+
+# --- rate limiting (in-memory sliding window; fine for a single process) --
+
+RATE_LIMIT_ATTEMPTS = 10
+RATE_LIMIT_WINDOW = 300  # seconds
+_attempts: dict[str, list[float]] = {}
+
+
+def check_rate_limit(request: Request):
+    ip = request.client.host if request.client else "unknown"
+    now = time.monotonic()
+    window = [t for t in _attempts.get(ip, []) if now - t < RATE_LIMIT_WINDOW]
+    if len(window) >= RATE_LIMIT_ATTEMPTS:
+        raise HTTPException(429, "Too many attempts — try again in a few minutes")
+    window.append(now)
+    _attempts[ip] = window
+    if len(_attempts) > 10_000:  # bound memory under address churn
+        _attempts.clear()
 
 
 # --- password hashing ---------------------------------------------------
@@ -86,8 +105,9 @@ class LoginRequest(BaseModel):
 
 
 @router.post("/register", status_code=201)
-def register(req: RegisterRequest, response: Response,
+def register(req: RegisterRequest, request: Request, response: Response,
              db: sqlite3.Connection = Depends(get_db)):
+    check_rate_limit(request)
     try:
         cur = db.execute("INSERT INTO users (email, name, password_hash) VALUES (?, ?, ?)",
                          (req.email.strip(), req.name.strip(), hash_password(req.password)))
@@ -98,8 +118,9 @@ def register(req: RegisterRequest, response: Response,
 
 
 @router.post("/login")
-def login(req: LoginRequest, response: Response,
+def login(req: LoginRequest, request: Request, response: Response,
           db: sqlite3.Connection = Depends(get_db)):
+    check_rate_limit(request)
     row = db.execute("SELECT id, email, name, password_hash FROM users WHERE email = ?",
                      (req.email.strip(),)).fetchone()
     if row is None or not verify_password(req.password, row["password_hash"]):

@@ -15,10 +15,9 @@
 
   <main>
     <h1>Build your trip</h1>
-    <p class="subtitle">Pick a ready-made program or set your own budget and time —
-      we compute the optimal itinerary from officially priced attractions.</p>
-
-    <div class="presets" id="presets"></div>
+    <p class="subtitle">Set your budget and time — we compute the optimal itinerary
+      from officially priced attractions. Prefer a template?
+      See <a href="programs.html">ready-made programs</a>.</p>
 
     <form id="plan-form" class="card grid">
       <div>
@@ -32,6 +31,10 @@
       <div>
         <label for="hours">Hours / day</label>
         <input id="hours" type="number" min="2" max="16" step="0.5" value="9" required />
+      </div>
+      <div>
+        <label for="start-date">Start date (optional)</label>
+        <input id="start-date" type="date" />
       </div>
       <div>
         <label for="tier">Visitor</label>
@@ -61,19 +64,25 @@
       <button type="submit" class="btn full">Build my trip</button>
     </form>
 
+    <div class="constraint-chips" id="constraints"></div>
     <div id="status"></div>
     <div id="result"></div>
   </main>
 
   <footer class="app-footer">Prices from the Egyptian Ministry of Tourism &amp; Antiquities
-    ticket list; items marked * are estimates pending verification.</footer>
+    ticket list; items marked * are estimates pending verification.
+    📍 opens the place in Google Maps.</footer>
 
   <script src="js/auth.js"></script>
+  <script src="js/itinerary.js"></script>
   <script>
     let me = null;
     let lastPlan = null;
     let lastParams = null;
-    let activePreset = null;
+    let presetCities = null;
+    let presetName = null;
+    const lockedIds = new Set();
+    const excluded = new Map();  // id -> display name
 
     const $ = id => document.getElementById(id);
 
@@ -83,56 +92,36 @@
       if (e.target.classList.contains('chip')) e.target.classList.toggle('on');
     });
 
-    // --- presets ---------------------------------------------------------
-    async function loadPresets() {
-      const res = await fetch('/api/presets');
-      const presets = await res.json();
-      $('presets').innerHTML = presets.map(p => `
-        <div class="preset" data-id="${p.id}" title="${escapeHtml(p.description)}">
-          <img src="${p.image}" alt="${escapeHtml(p.name)}" />
-          <div class="p-name">${escapeHtml(p.name)}</div>
-          <div class="p-desc">${escapeHtml(p.description)}</div>
-        </div>`).join('');
-      $('presets').addEventListener('click', e => {
-        const card = e.target.closest('.preset');
-        if (!card) return;
-        document.querySelectorAll('.preset').forEach(c => c.classList.remove('on'));
-        card.classList.add('on');
-        applyPreset(presets.find(p => p.id === card.dataset.id));
-      });
-      // deep link: build.html?preset=pharaonic
+    // deep link support: build.html?preset=<id> (from Programs / homepage)
+    (async () => {
       const wanted = new URLSearchParams(location.search).get('preset');
+      if (!wanted) return;
+      const presets = await (await fetch('/api/presets')).json();
       const preset = presets.find(p => p.id === wanted);
-      if (preset) {
-        document.querySelector(`.preset[data-id="${preset.id}"]`).classList.add('on');
-        applyPreset(preset);
-        buildTrip();
-      }
-    }
-
-    function applyPreset(preset) {
-      activePreset = preset;
+      if (!preset) return;
       const p = preset.params;
+      presetCities = p.cities || null;
+      presetName = preset.name;
       $('budget').value = p.budget;
       $('days').value = p.days;
       $('hours').value = p.hours_per_day;
       $('tier').value = p.tier;
       $('student').value = p.student ? '1' : '';
-      document.querySelectorAll('.chip').forEach(c =>
+      document.querySelectorAll('#chips .chip').forEach(c =>
         c.classList.toggle('on', !!(p.preferences && p.preferences[c.dataset.cat])));
-    }
+      buildTrip();
+    })();
 
     // --- planning ----------------------------------------------------------
     $('plan-form').addEventListener('submit', e => { e.preventDefault(); buildTrip(); });
 
     async function buildTrip() {
       const status = $('status');
-      $('result').innerHTML = '';
       status.className = '';
       status.textContent = 'Computing your optimal itinerary…';
 
       const preferences = {};
-      document.querySelectorAll('.chip.on').forEach(c => preferences[c.dataset.cat] = 2);
+      document.querySelectorAll('#chips .chip.on').forEach(c => preferences[c.dataset.cat] = 2);
 
       lastParams = {
         budget: +$('budget').value,
@@ -141,7 +130,10 @@
         tier: $('tier').value,
         student: !!$('student').value,
         preferences: Object.keys(preferences).length ? preferences : null,
-        cities: activePreset && activePreset.params.cities || null,
+        cities: presetCities,
+        locked: lockedIds.size ? [...lockedIds] : null,
+        excluded: excluded.size ? [...excluded.keys()] : null,
+        start_date: $('start-date').value || null,
       };
 
       try {
@@ -152,10 +144,11 @@
         });
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
-          throw new Error(err.detail || `Request failed (${res.status})`);
+          throw new Error(typeof err.detail === 'string' ? err.detail
+            : `Request failed (${res.status})`);
         }
         lastPlan = await res.json();
-        render(lastPlan);
+        render();
         status.textContent = '';
       } catch (err) {
         status.className = 'error';
@@ -163,48 +156,87 @@
       }
     }
 
-    function render(plan) {
-      const result = $('result');
+    function render() {
+      const plan = lastPlan;
       const saveUi = me
-        ? '<span class="spacer"></span><button class="btn secondary" onclick="saveTrip()">Save this trip</button>'
-        : '<span class="spacer"></span><a href="Login.html" style="color:#fff;text-decoration:underline;">Log in to save this trip</a>';
-      result.innerHTML = `
+        ? '<button class="btn secondary" onclick="saveTrip()">Save this trip</button>'
+        : '<a href="Login.html" style="color:#fff;text-decoration:underline;">Log in to save</a>';
+      $('result').innerHTML = `
         <div class="summary">
           <div><b>${plan.total_places}</b> places</div>
-          <div><b>${plan.total_cost} EGP</b> of ${plan.params.budget} budget</div>
+          <div><b><span data-egp="${plan.total_cost}">${Currency.fmt(plan.total_cost)}</span></b>
+            of <span data-egp="${plan.params.budget}">${Currency.fmt(plan.params.budget)}</span> budget</div>
           <div><b>${plan.days.length}</b> day${plan.days.length > 1 ? 's' : ''}</div>
-          ${saveUi}
-        </div>`;
-      for (const day of plan.days) {
-        const stops = day.stops.map(s => `
-          <div class="stop">
-            <span class="time">${s.arrive}–${s.depart}</span>
-            <span class="name">${escapeHtml(s.name)}${s.needs_verification ? ' *' : ''}
-              <span class="meta"> ${escapeHtml(s.area)} · ★${s.rating}</span>
-              ${s.after_hours ? '<span class="warn"> may run past closing</span>' : ''}
-            </span>
-            <span class="price">${s.price ? s.price + ' EGP' : 'Free'}</span>
-          </div>`).join('');
-        result.innerHTML += `
-          <div class="day">
-            <div class="day-head">
-              <span>Day ${day.day} — ${escapeHtml(day.city)}</span>
-              <span>${day.total_cost} EGP · done by ${day.end}</span>
-            </div>
-            ${stops}
-          </div>`;
-      }
-      if (plan.unscheduled.length) {
-        result.innerHTML += `<p class="warn">Couldn't fit: ${plan.unscheduled.map(escapeHtml).join(', ')} —
-          try more days or hours.</p>`;
-      }
+          <span class="spacer"></span>${saveUi}
+        </div>
+        <div class="toolbar no-print">
+          <button class="btn secondary" onclick="window.print()">Print / PDF</button>
+          <button class="btn secondary" onclick="downloadIcs(lastPlan, presetName || 'My Egypt Trip')">
+            Add to calendar (.ics)</button>
+          <label for="currency" style="margin:0 0 0 auto;">Currency</label>
+          <select id="currency">
+            <option>EGP</option><option>USD</option><option>EUR</option><option>GBP</option>
+          </select>
+        </div>
+        <div id="days-container"></div>`;
+      renderItinerary($('days-container'), plan,
+        { interactive: { lockedIds, ns: 'TC' } });
+      Currency.init($('currency'));
+      renderConstraints();
     }
+
+    function renderConstraints() {
+      const bits = [];
+      for (const id of lockedIds) {
+        bits.push(`<span class="chip on" title="Click to unlock"
+          onclick="TC.toggleLock('${id}')">🔒 ${escapeHtml(stopName(id))}</span>`);
+      }
+      for (const [id, name] of excluded) {
+        bits.push(`<span class="chip removed" title="Click to bring back"
+          onclick="TC.restore('${id}')">✕ ${escapeHtml(name)}</span>`);
+      }
+      if (bits.length) {
+        bits.push('<a href="#" onclick="TC.reset();return false;">reset all</a>');
+      }
+      $('constraints').innerHTML = bits.join(' ');
+    }
+
+    function stopName(id) {
+      for (const d of lastPlan?.days || []) {
+        const s = d.stops.find(s => s.id === id);
+        if (s) return s.name;
+      }
+      return id;
+    }
+
+    // namespace used by the shared renderer's buttons
+    const TC = {
+      toggleLock(id) {
+        lockedIds.has(id) ? lockedIds.delete(id) : lockedIds.add(id);
+        renderItinerary($('days-container'), lastPlan,
+          { interactive: { lockedIds, ns: 'TC' } });
+        renderConstraints();
+      },
+      removeStop(id) {
+        excluded.set(id, stopName(id));
+        lockedIds.delete(id);
+        buildTrip();
+      },
+      restore(id) {
+        excluded.delete(id);
+        buildTrip();
+      },
+      reset() {
+        excluded.clear();
+        lockedIds.clear();
+        buildTrip();
+      },
+    };
 
     // --- saving ------------------------------------------------------------
     async function saveTrip() {
       if (!lastPlan) return;
-      const defaultName = activePreset ? activePreset.name
-        : `${lastParams.days}-day trip (${lastParams.budget} EGP)`;
+      const defaultName = presetName || `${lastParams.days}-day trip (${lastParams.budget} EGP)`;
       const name = prompt('Name this trip:', defaultName);
       if (!name) return;
       const status = $('status');
@@ -222,8 +254,6 @@
         status.textContent = err.message;
       }
     }
-
-    loadPresets();
   </script>
 </body>
 </html>

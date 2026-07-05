@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Programs — Tourist Companion</title>
+  <link rel="icon" href="favicon.png" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo">Tourist Companion</div>
+    <nav id="nav"></nav>
+  </header>
+
+  <main>
+    <h1>Ready-made programs</h1>
+    <p class="subtitle">Curated trip templates — pick one and we compute the optimal
+      itinerary live from official ticket prices. You can tweak everything afterwards.</p>
+    <div class="programs" id="programs"></div>
+  </main>
+
+  <footer class="app-footer">Prices from the Egyptian Ministry of Tourism &amp; Antiquities
+    ticket list.</footer>
+
+  <script src="js/auth.js"></script>
+  <script>
+    renderAuthNav('nav');
+
+    (async () => {
+      const presets = await (await fetch('/api/presets')).json();
+      document.getElementById('programs').innerHTML = presets.map(p => `
+        <div class="program-card">
+          <img src="${p.image}" alt="${escapeHtml(p.name)}" />
+          <div class="p-body">
+            <h3>${escapeHtml(p.name)}</h3>
+            <div class="p-desc">${escapeHtml(p.description)}</div>
+            <div class="p-meta">${p.params.days} day${p.params.days > 1 ? 's' : ''}
+              · ~${p.params.budget.toLocaleString()} EGP budget</div>
+            <a class="btn" href="build.html?preset=${p.id}">Use this program</a>
+          </div>
+        </div>`).join('');
+    })();
+  </script>
+</body>
+</html>

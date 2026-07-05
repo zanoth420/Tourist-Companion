@@ -25,12 +25,19 @@ CREATE TABLE IF NOT EXISTS trips (
     name        TEXT NOT NULL,
     params_json TEXT NOT NULL,
     plan_json   TEXT NOT NULL,
+    share_token TEXT,
     created_at  TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
 CREATE INDEX IF NOT EXISTS idx_trips_user ON trips(user_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_trips_share ON trips(share_token);
 """
+
+# Additive migrations for databases created before a column existed.
+MIGRATIONS = [
+    ("trips", "share_token", "ALTER TABLE trips ADD COLUMN share_token TEXT"),
+]
 
 
 def connect() -> sqlite3.Connection:
@@ -43,6 +50,12 @@ def connect() -> sqlite3.Connection:
 def init_db():
     db_path().parent.mkdir(parents=True, exist_ok=True)
     with connect() as conn:
+        for table, column, ddl in MIGRATIONS:
+            if conn.execute(f"SELECT 1 FROM sqlite_master WHERE name = ?",
+                            (table,)).fetchone():
+                cols = {r["name"] for r in conn.execute(f"PRAGMA table_info({table})")}
+                if column not in cols:
+                    conn.execute(ddl)
         conn.executescript(SCHEMA)
 
 

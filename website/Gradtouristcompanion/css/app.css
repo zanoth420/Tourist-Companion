@@ -173,3 +173,66 @@ input, select {
 .field { margin-bottom: 1rem; }
 
 footer.app-footer { text-align: center; color: #999; padding: 2rem; font-size: .85rem; }
+
+/* --- itinerary extras (maps links, lock/remove, toolbar) --- */
+.map-link { text-decoration: none; font-size: .85rem; margin-left: .2rem; }
+.day-link { color: var(--color-accent); font-weight: 700; text-decoration: none; margin-left: .6rem; font-size: .9rem; }
+.day-link:hover { text-decoration: underline; }
+.stop-actions { display: flex; gap: .3rem; align-items: center; }
+.icon-btn {
+  border: 1px solid var(--color-gray-dark);
+  background: #fff;
+  border-radius: 6px;
+  padding: .15rem .45rem;
+  cursor: pointer;
+  font-size: .85rem;
+  line-height: 1.4;
+}
+.icon-btn:hover { border-color: var(--color-accent); }
+.icon-btn.on { background: var(--color-accent); border-color: var(--color-accent); }
+
+.toolbar {
+  display: flex;
+  gap: .6rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+}
+.toolbar .btn { padding: .5rem 1rem; font-size: .95rem; }
+.toolbar select {
+  width: auto;
+  padding: .45rem .6rem;
+  font-size: .95rem;
+}
+.constraint-chips { display: flex; gap: .4rem; flex-wrap: wrap; margin: .6rem 0; }
+.constraint-chips .chip { cursor: pointer; }
+.constraint-chips .chip.removed { text-decoration: line-through; color: #999; }
+
+/* --- programs page --- */
+.programs { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.2rem; }
+.program-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(2, 60, 136, .08);
+  display: flex;
+  flex-direction: column;
+}
+.program-card img { width: 100%; height: 150px; object-fit: cover; }
+.program-card .p-body { padding: 1rem 1.2rem 1.2rem; display: flex; flex-direction: column; gap: .5rem; flex: 1; }
+.program-card h3 { color: var(--color-blue); }
+.program-card .p-desc { color: #666; font-size: .9rem; flex: 1; }
+.program-card .p-meta { color: #999; font-size: .82rem; }
+.program-card .btn { align-self: flex-start; }
+
+/* --- print (Save as PDF) --- */
+@media print {
+  header.app-header, footer.app-footer, form, .toolbar, .presets, .programs,
+  #status, .stop-actions, .map-link, .day-link, .constraint-chips,
+  .trip-row .btn, .no-print { display: none !important; }
+  body { background: #fff; }
+  main { max-width: none; margin: 0; }
+  .card, .day, .summary { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+  .summary { color: #000; background: #fff; }
+  .stop .time { color: #000; }
+}

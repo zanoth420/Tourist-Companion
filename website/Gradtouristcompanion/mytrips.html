@@ -22,8 +22,10 @@
   </main>
 
   <script src="js/auth.js"></script>
+  <script src="js/itinerary.js"></script>
   <script>
     const $ = id => document.getElementById(id);
+    let currentTrip = null;
 
     renderAuthNav('nav').then(me => {
       if (!me) { window.location.href = 'Login.html?next=mytrips.html'; return; }
@@ -31,8 +33,7 @@
     });
 
     async function loadTrips() {
-      const res = await fetch('/api/trips');
-      const trips = await res.json();
+      const trips = await (await fetch('/api/trips')).json();
       if (!trips.length) {
         $('list').innerHTML = `<div class="card">No saved trips yet —
           <a href="build.html">build one</a> and hit “Save this trip”.</div>`;
@@ -43,8 +44,11 @@
           <span class="t-name">${escapeHtml(t.name)}</span>
           <span class="t-meta">${t.days} day${t.days > 1 ? 's' : ''} ·
             ${t.total_places} places · ${t.total_cost} EGP ·
-            saved ${t.created_at.slice(0, 10)}</span>
+            saved ${t.created_at.slice(0, 10)}${t.share_token ? ' · 🔗 shared' : ''}</span>
           <button class="btn secondary" onclick="showTrip(${t.id})">View</button>
+          <button class="btn secondary" onclick="shareTrip(${t.id}, ${!!t.share_token})">
+            ${t.share_token ? 'Copy link' : 'Share'}</button>
+          ${t.share_token ? `<button class="btn danger" onclick="revokeShare(${t.id})">Unshare</button>` : ''}
           <button class="btn danger" onclick="deleteTrip(${t.id})">Delete</button>
         </div>`).join('');
     }
@@ -52,33 +56,48 @@
     async function showTrip(id) {
       const res = await fetch(`/api/trips/${id}`);
       if (!res.ok) return;
-      const trip = await res.json();
-      const plan = trip.plan;
-      let html = `
+      currentTrip = await res.json();
+      const plan = currentTrip.plan;
+      $('detail').innerHTML = `
         <div class="summary">
-          <div><b>${escapeHtml(trip.name)}</b></div>
+          <div><b>${escapeHtml(currentTrip.name)}</b></div>
           <div><b>${plan.total_places}</b> places</div>
-          <div><b>${plan.total_cost} EGP</b></div>
-        </div>`;
-      for (const day of plan.days) {
-        const stops = day.stops.map(s => `
-          <div class="stop">
-            <span class="time">${s.arrive}–${s.depart}</span>
-            <span class="name">${escapeHtml(s.name)}
-              <span class="meta"> ${escapeHtml(s.area)} · ★${s.rating}</span></span>
-            <span class="price">${s.price ? s.price + ' EGP' : 'Free'}</span>
-          </div>`).join('');
-        html += `
-          <div class="day">
-            <div class="day-head">
-              <span>Day ${day.day} — ${escapeHtml(day.city)}</span>
-              <span>${day.total_cost} EGP · done by ${day.end}</span>
-            </div>
-            ${stops}
-          </div>`;
-      }
-      $('detail').innerHTML = html;
+          <div><b><span data-egp="${plan.total_cost}">${Currency.fmt(plan.total_cost)}</span></b></div>
+        </div>
+        <div class="toolbar no-print">
+          <button class="btn secondary" onclick="window.print()">Print / PDF</button>
+          <button class="btn secondary"
+            onclick="downloadIcs(currentTrip.plan, currentTrip.name)">Add to calendar (.ics)</button>
+          <label for="currency" style="margin:0 0 0 auto;">Currency</label>
+          <select id="currency">
+            <option>EGP</option><option>USD</option><option>EUR</option><option>GBP</option>
+          </select>
+        </div>
+        <div id="days-container"></div>`;
+      renderItinerary($('days-container'), plan);
+      Currency.init($('currency'));
       $('detail').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function shareTrip(id, alreadyShared) {
+      const res = await fetch(`/api/trips/${id}/share`, { method: 'POST' });
+      if (!res.ok) return;
+      const { url } = await res.json();
+      const fullUrl = location.origin + '/' + url.replace(/^\//, '');
+      try {
+        await navigator.clipboard.writeText(fullUrl);
+        flash(`Share link copied: <a href="${url}" target="_blank">${fullUrl}</a>`);
+      } catch {
+        flash(`Share link: <a href="${url}" target="_blank">${fullUrl}</a>`);
+      }
+      if (!alreadyShared) loadTrips();
+    }
+
+    async function revokeShare(id) {
+      if (!confirm('Unshare this trip? The existing link will stop working.')) return;
+      await fetch(`/api/trips/${id}/share`, { method: 'DELETE' });
+      flash('Link revoked.');
+      loadTrips();
     }
 
     async function deleteTrip(id) {
@@ -86,6 +105,12 @@
       await fetch(`/api/trips/${id}`, { method: 'DELETE' });
       $('detail').innerHTML = '';
       loadTrips();
+    }
+
+    function flash(html) {
+      const s = $('status');
+      s.className = 'ok';
+      s.innerHTML = html;
     }
   </script>
 </body>

@@ -15,6 +15,7 @@ Usage:
 
 import argparse
 import sys
+from datetime import date, timedelta
 from pathlib import Path
 
 from solver import load_places, solve, DATA_FILE
@@ -24,21 +25,29 @@ TRAVEL_OVERHEAD = 0.85  # fraction of trip hours assumed available for visits
 
 
 def plan(budget, tier="foreign", student=False, days=3, hours_per_day=9.0,
-         weights=None, cities=None, data_file=DATA_FILE):
+         weights=None, cities=None, data_file=DATA_FILE,
+         locked=None, excluded=None, start_date=None):
     places = load_places(data_file, tier, student, cities)
     if not places:
         raise ValueError("No places match the given filters.")
 
     cap = round(days * hours_per_day * 60 * TRAVEL_OVERHEAD)
     for _ in range(3):
-        chosen, status = solve(places, budget, max_minutes=cap, weights=weights)
+        chosen, status = solve(places, budget, max_minutes=cap, weights=weights,
+                               locked=locked, excluded=excluded)
         if chosen is None:
-            raise ValueError(f"No feasible plan (solver status: {status}).")
+            raise ValueError(f"No feasible plan (solver status: {status}). "
+                             "If you locked places, they may not fit the budget.")
         day_plans, unscheduled = schedule(chosen, days, hours_per_day)
         if not unscheduled:
             break
         # didn't fit once travel time was accounted for — tighten and retry
         cap -= sum(p["visit_min"] for p in unscheduled)
+
+    if start_date is not None:
+        first = date.fromisoformat(start_date)
+        for day in day_plans:
+            day["date"] = (first + timedelta(days=day["day"] - 1)).isoformat()
     return {
         "params": {"budget": budget, "tier": tier, "student": student,
                    "days": days, "hours_per_day": hours_per_day},

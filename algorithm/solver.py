@@ -56,10 +56,25 @@ def place_value(place, weights=None):
     return round(place["rating"] * 10 * w)
 
 
-def solve(places, budget, max_minutes=None, weights=None):
+def solve(places, budget, max_minutes=None, weights=None, locked=None, excluded=None):
+    """locked: place ids that must be in the plan; excluded: ids that must not.
+
+    Excluded places are removed before solving, so anything that requires
+    them drops out too (via the parent-missing rule below). A locked id that
+    isn't available (filtered, excluded, or wrong tier) raises ValueError.
+    """
+    if excluded:
+        places = [p for p in places if p["id"] not in set(excluded)]
+
     model = cp_model.CpModel()
     by_id = {p["id"]: p for p in places}
     x = {p["id"]: model.new_bool_var(p["id"]) for p in places}
+
+    for pid in locked or []:
+        if pid not in by_id:
+            raise ValueError(f"Locked place '{pid}' is not available with the "
+                             "current filters/exclusions.")
+        model.add(x[pid] == 1)
 
     model.add(sum(x[p["id"]] * p["price"] for p in places) <= budget)
     if max_minutes is not None:

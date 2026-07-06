@@ -6,15 +6,17 @@
   <title>Shared Trip — Tourist Companion</title>
   <link rel="icon" href="favicon.png" />
   <script src="js/theme.js"></script>
+  <script src="js/i18n.js"></script>
   <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
   <header class="app-header">
-    <div class="logo">Tourist Companion</div>
+    <div class="logo" data-i18n="brand">Tourist Companion</div>
     <nav>
-      <a href="index.html">Home</a>
-      <a href="programs.html">Programs</a>
-      <a href="build.html">Build Trip</a>
+      <a href="index.html" data-i18n="nav.home">Home</a>
+      <a href="programs.html" data-i18n="nav.programs">Programs</a>
+      <a href="build.html" data-i18n="nav.build">Build Trip</a>
+      <button class="lang-toggle" onclick="toggleLang()" aria-label="Switch language">ع</button>
       <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">☀</button>
     </nav>
   </header>
@@ -24,8 +26,8 @@
     <div id="content"></div>
   </main>
 
-  <footer class="app-footer">Shared via Tourist Companion —
-    <a href="build.html">plan your own trip</a>.</footer>
+  <footer class="app-footer"><span data-i18n="share.footer">Shared via Tourist Companion</span> —
+    <a href="build.html" data-i18n="footer.plan_cta">Plan your trip →</a></footer>
 
   <script src="js/itinerary.js"></script>
   <script src="js/map.js"></script>
@@ -35,30 +37,31 @@
 
     (async () => {
       const token = new URLSearchParams(location.search).get('t');
-      if (!token) { fail('Missing share token.'); return; }
+      if (!token) { fail(t('share.missing')); return; }
       const res = await fetch(`/api/shared/${encodeURIComponent(token)}`);
-      if (!res.ok) {
-        fail('This share link is invalid or was revoked by its owner.');
-        return;
-      }
+      if (!res.ok) { fail(t('share.invalid')); return; }
       trip = await res.json();
+      renderShared();
+    })();
+
+    function renderShared() {
+      if (!trip) return;
       const esc = s => { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
       const plan = trip.plan;
-      document.title = `${trip.name} — Tourist Companion`;
+      document.title = `${trip.name} — ${t('brand')}`;
       $('content').innerHTML = `
         <h1>${esc(trip.name)}</h1>
-        <p class="subtitle">A shared itinerary · ${plan.total_places} places
-          over ${plan.days.length} day${plan.days.length > 1 ? 's' : ''}</p>
+        <p class="subtitle">${t('share.subtitle')} · ${plan.total_places} ${t('summary.places')}
+          ${t('share.over')} ${plan.days.length} ${tPlural(plan.days.length)}</p>
         <div class="summary">
-          <div><b>${plan.total_places}</b> places</div>
-          <div><b><span data-egp="${plan.total_cost}">${Currency.fmt(plan.total_cost)}</span></b> in tickets</div>
-          <div><b>${plan.days.length}</b> day${plan.days.length > 1 ? 's' : ''}</div>
+          <div><b>${plan.total_places}</b> ${t('summary.places')}</div>
+          <div><b><span data-egp="${plan.total_cost}">${Currency.fmt(plan.total_cost)}</span></b> ${t('share.in_tickets')}</div>
+          <div><b>${plan.days.length}</b> ${tPlural(plan.days.length)}</div>
         </div>
         <div class="toolbar no-print">
-          <button class="btn secondary" onclick="window.print()">Print / PDF</button>
-          <button class="btn secondary" onclick="downloadIcs(trip.plan, trip.name)">
-            Add to calendar (.ics)</button>
-          <label for="currency" style="margin:0 0 0 auto;">Currency</label>
+          <button class="btn secondary" onclick="window.print()">${t('btn.print')}</button>
+          <button class="btn secondary" onclick="downloadIcs(trip.plan, trip.name)">${t('btn.ics')}</button>
+          <label for="currency" style="margin:0 0 0 auto;">${t('label.currency')}</label>
           <select id="currency">
             <option>EGP</option><option>USD</option><option>EUR</option><option>GBP</option>
           </select>
@@ -68,12 +71,14 @@
       renderItinerary($('days-container'), plan);
       if (window.TripMap) TripMap.render($('trip-map'), plan);
       Currency.init($('currency'));
-    })();
+    }
 
     function fail(msg) {
       $('status').className = 'error';
       $('status').textContent = msg;
     }
+
+    document.addEventListener('langchange', renderShared);
   </script>
 </body>
 </html>

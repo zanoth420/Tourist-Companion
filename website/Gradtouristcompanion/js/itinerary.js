@@ -27,7 +27,7 @@ const Currency = {
   },
 
   fmt(egp) {
-    if (egp === 0) return 'Free';
+    if (egp === 0) return (typeof t === 'function' ? t('currency.free') : 'Free');
     if (this.code === 'EGP' || !this.rates || !this.rates[this.code]) {
       return `${egp} EGP`;
     }
@@ -83,7 +83,7 @@ function renderItinerary(container, plan, opts = {}) {
     const dateLabel = day.date ? ` · ${prettyDate(day.date)}` : '';
     const route = mapsDayRouteUrl(day);
     const routeLink = route
-      ? ` <a class="day-link" href="${route}" target="_blank" rel="noopener">Route ↗</a>` : '';
+      ? ` <a class="day-link" href="${route}" target="_blank" rel="noopener">${t('itin.route')}</a>` : '';
     const stops = day.stops.map(s => {
       let actions = '';
       if (it) {
@@ -103,7 +103,7 @@ function renderItinerary(container, plan, opts = {}) {
             <a class="map-link" href="${mapsPlaceUrl(s)}" target="_blank"
                rel="noopener" title="Open in Google Maps">📍</a>
             <span class="meta"> ${_esc(s.area)} · ★${s.rating}</span>
-            ${s.after_hours ? '<span class="warn"> may run past closing</span>' : ''}
+            ${s.after_hours ? `<span class="warn"> ${t('itin.after_hours')}</span>` : ''}
           </span>
           ${actions}
           <span class="price" data-egp="${s.price}">${Currency.fmt(s.price)}</span>
@@ -112,16 +112,16 @@ function renderItinerary(container, plan, opts = {}) {
     html += `
       <div class="day">
         <div class="day-head">
-          <span>Day ${day.day} — ${_esc(day.city)}${dateLabel}</span>
+          <span>${t('itin.day')} ${day.day} — ${_esc(day.city)}${dateLabel}</span>
           <span><span data-egp="${day.total_cost}">${Currency.fmt(day.total_cost)}</span>
-            · done by ${day.end}${routeLink}</span>
+            · ${t('itin.done_by')} ${day.end}${routeLink}</span>
         </div>
         ${stops}
       </div>`;
   }
   if (plan.unscheduled && plan.unscheduled.length) {
-    html += `<p class="warn">Couldn't fit: ${plan.unscheduled.map(_esc).join(', ')} —
-      try more days or hours.</p>`;
+    html += `<p class="warn">${t('itin.couldnt_fit')} ${plan.unscheduled.map(_esc).join(', ')} —
+      ${t('itin.try_more')}</p>`;
   }
   container.innerHTML = html;
 }

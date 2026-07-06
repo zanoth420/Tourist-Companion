@@ -6,42 +6,46 @@
   <title>Programs — Tourist Companion</title>
   <link rel="icon" href="favicon.png" />
   <script src="js/theme.js"></script>
+  <script src="js/i18n.js"></script>
   <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
   <header class="app-header">
-    <div class="logo">Tourist Companion</div>
+    <div class="logo" data-i18n="brand">Tourist Companion</div>
     <nav id="nav"></nav>
   </header>
 
   <main>
-    <h1>Ready-made programs</h1>
-    <p class="subtitle">Curated trip templates — pick one and we compute the optimal
+    <h1 data-i18n="programs.h1">Ready-made programs</h1>
+    <p class="subtitle" data-i18n="programs.sub">Curated trip templates — pick one and we compute the optimal
       itinerary live from official ticket prices. You can tweak everything afterwards.</p>
     <div class="programs" id="programs"></div>
   </main>
 
-  <footer class="app-footer">Prices from the Egyptian Ministry of Tourism &amp; Antiquities
-    ticket list.</footer>
+  <footer class="app-footer"><span data-i18n="footer.prices">Prices from the Egyptian Ministry of Tourism &amp; Antiquities
+    ticket list.</span></footer>
 
   <script src="js/auth.js"></script>
   <script>
     renderAuthNav('nav');
 
-    (async () => {
+    async function loadPrograms() {
       const presets = await (await fetch('/api/presets')).json();
+      const ar = getLang() === 'ar';
       document.getElementById('programs').innerHTML = presets.map(p => `
         <div class="program-card">
-          <img src="${p.image}" alt="${escapeHtml(p.name)}" />
+          <img src="${p.image}" alt="${escapeHtml(ar && p.name_ar || p.name)}" />
           <div class="p-body">
-            <h3>${escapeHtml(p.name)}</h3>
-            <div class="p-desc">${escapeHtml(p.description)}</div>
-            <div class="p-meta">${p.params.days} day${p.params.days > 1 ? 's' : ''}
-              · ~${p.params.budget.toLocaleString()} EGP budget</div>
-            <a class="btn" href="build.html?preset=${p.id}">Use this program</a>
+            <h3>${escapeHtml(ar && p.name_ar || p.name)}</h3>
+            <div class="p-desc">${escapeHtml(ar && p.description_ar || p.description)}</div>
+            <div class="p-meta">${p.params.days} ${tPlural(p.params.days)}
+              · ~${p.params.budget.toLocaleString()} EGP</div>
+            <a class="btn" href="build.html?preset=${p.id}">${t('home.use_program')}</a>
           </div>
         </div>`).join('');
-    })();
+    }
+    loadPrograms();
+    document.addEventListener('langchange', loadPrograms);
   </script>
 </body>
 </html>

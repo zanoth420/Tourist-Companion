@@ -7,87 +7,92 @@
   <title>Tourist Companion — Egypt trips, optimized</title>
   <link rel="icon" href="favicon.png" />
   <script src="js/theme.js"></script>
+  <script src="js/i18n.js"></script>
   <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
   <header class="app-header">
-    <div class="logo">Tourist Companion</div>
+    <div class="logo" data-i18n="brand">Tourist Companion</div>
     <nav id="nav"></nav>
   </header>
 
   <section class="hero">
     <div class="inner">
-      <div class="eyebrow">Egypt · optimized itineraries</div>
-      <h1>Egypt, curated for you.</h1>
-      <p>Timeless wonders, planned to your exact budget with real, verified ticket
+      <div class="eyebrow" data-i18n="home.eyebrow">Egypt · optimized itineraries</div>
+      <h1 data-i18n="home.h1">Egypt, curated for you.</h1>
+      <p data-i18n="home.hero_p">Timeless wonders, planned to your exact budget with real, verified ticket
         prices — a full day-by-day itinerary in seconds.</p>
       <div class="btns">
-        <a class="btn" href="build.html">Begin your journey</a>
-        <a class="btn ghost" href="programs.html">Browse programs</a>
+        <a class="btn" href="build.html" data-i18n="home.begin">Begin your journey</a>
+        <a class="btn ghost" href="programs.html" data-i18n="home.browse">Browse programs</a>
       </div>
     </div>
   </section>
 
   <div class="strip">
-    <div class="stat"><b>100+</b><span>verified sites</span></div>
-    <div class="stat"><b>16</b><span>cities</span></div>
-    <div class="stat"><b>2026</b><span>official prices</span></div>
-    <div class="stat"><b>4</b><span>visitor price tiers</span></div>
+    <div class="stat"><b>100+</b><span data-i18n="stat.sites">verified sites</span></div>
+    <div class="stat"><b>16</b><span data-i18n="stat.cities">cities</span></div>
+    <div class="stat"><b>2026</b><span data-i18n="stat.prices">official prices</span></div>
+    <div class="stat"><b>4</b><span data-i18n="stat.tiers">visitor price tiers</span></div>
   </div>
 
   <section class="home-section">
-    <h2>Popular programs</h2>
-    <div class="sec-sub">Curated trips — pick one and we compute the optimal itinerary live.</div>
+    <h2 data-i18n="home.popular">Popular programs</h2>
+    <div class="sec-sub" data-i18n="home.popular_sub">Curated trips — pick one and we compute the optimal itinerary live.</div>
     <div class="programs" id="programs"></div>
   </section>
 
   <section class="home-section">
-    <h2>How it works</h2>
-    <div class="sec-sub">An exact optimizer, not a guess — and a real schedule you can follow.</div>
+    <h2 data-i18n="home.how">How it works</h2>
+    <div class="sec-sub" data-i18n="home.how_sub">An exact optimizer, not a guess — and a real schedule you can follow.</div>
     <div class="steps">
       <div class="step">
         <div class="n">1</div>
-        <h3>Set your budget</h3>
-        <p>Tell us your ticket budget, days, and interests — foreign or Egyptian, adult or student.</p>
+        <h3 data-i18n="home.step1_h">Set your budget</h3>
+        <p data-i18n="home.step1_p">Tell us your ticket budget, days, and interests — foreign or Egyptian, adult or student.</p>
       </div>
       <div class="step">
         <div class="n">2</div>
-        <h3>We optimize</h3>
-        <p>An exact solver picks the best-rated set of attractions that fits your exact budget.</p>
+        <h3 data-i18n="home.step2_h">We optimize</h3>
+        <p data-i18n="home.step2_p">An exact solver picks the best-rated set of attractions that fits your exact budget.</p>
       </div>
       <div class="step">
         <div class="n">3</div>
-        <h3>Follow the plan</h3>
-        <p>Day-by-day, ordered by geography and opening hours — with maps links and calendar export.</p>
+        <h3 data-i18n="home.step3_h">Follow the plan</h3>
+        <p data-i18n="home.step3_p">Day-by-day, ordered by geography and opening hours — with maps links and calendar export.</p>
       </div>
     </div>
   </section>
 
   <footer class="app-footer">
-    Prices from the Egyptian Ministry of Tourism &amp; Antiquities ticket list.
-    <a href="build.html">Plan your trip →</a>
+    <span data-i18n="footer.prices">Prices from the Egyptian Ministry of Tourism &amp; Antiquities ticket list.</span>
+    <a href="build.html" data-i18n="footer.plan_cta">Plan your trip →</a>
   </footer>
 
   <script src="js/auth.js"></script>
   <script>
     renderAuthNav('nav');
-    (async () => {
+
+    async function loadPrograms() {
       try {
         const presets = (await (await fetch('/api/presets')).json()).slice(0, 3);
+        const ar = getLang() === 'ar';
         document.getElementById('programs').innerHTML = presets.map(p => `
           <div class="program-card">
-            <img src="${p.image}" alt="${escapeHtml(p.name)}" />
+            <img src="${p.image}" alt="${escapeHtml(ar && p.name_ar || p.name)}" />
             <div class="p-body">
-              <h3>${escapeHtml(p.name)}</h3>
-              <div class="p-desc">${escapeHtml(p.description)}</div>
-              <div class="p-meta">${p.params.days} day${p.params.days > 1 ? 's' : ''}
+              <h3>${escapeHtml(ar && p.name_ar || p.name)}</h3>
+              <div class="p-desc">${escapeHtml(ar && p.description_ar || p.description)}</div>
+              <div class="p-meta">${p.params.days} ${tPlural(p.params.days)}
                 · ~${p.params.budget.toLocaleString()} EGP</div>
-              <a class="btn" href="build.html?preset=${p.id}">Use this program</a>
+              <a class="btn" href="build.html?preset=${p.id}">${t('home.use_program')}</a>
             </div>
           </div>`).join('');
       } catch { document.getElementById('programs').innerHTML =
         '<p class="subtitle">Start the API to see programs.</p>'; }
-    })();
+    }
+    loadPrograms();
+    document.addEventListener('langchange', loadPrograms);
   </script>
 </body>
 </html>

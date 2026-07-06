@@ -3,6 +3,7 @@
    Every colour is a token so the two themes share one set of components. */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=El+Messiri:wght@500;600;700&display=swap');
 
 :root {
   --bg: #14110d;
@@ -77,7 +78,7 @@ header.app-header a { color: var(--text-muted); text-decoration: none; font-size
 header.app-header a:hover { color: var(--gold); }
 header.app-header .user { color: var(--gold); font-weight: 600; }
 
-.theme-toggle {
+.theme-toggle, .lang-toggle {
   background: transparent;
   border: 1px solid var(--border-strong);
   color: var(--gold);
@@ -87,7 +88,8 @@ header.app-header .user { color: var(--gold); font-weight: 600; }
   font-size: 15px;
   line-height: 1;
 }
-.theme-toggle:hover { border-color: var(--gold); }
+.lang-toggle { font-size: 13px; font-weight: 600; }
+.theme-toggle:hover, .lang-toggle:hover { border-color: var(--gold); }
 
 main { max-width: var(--maxw); margin: 2.5rem auto; padding: 0 1.25rem; }
 h1 { font-size: 2rem; margin-bottom: .5rem; color: var(--text); }
@@ -335,6 +337,18 @@ footer.app-footer a { color: var(--gold); }
   .hero { padding: 4rem 1.25rem; }
   .hero h1 { font-size: 2.2rem; }
 }
+
+/* --- Arabic / RTL --- */
+html[lang="ar"] {
+  --font-head: 'El Messiri', 'Playfair Display', serif;
+  --font-body: 'Cairo', 'Segoe UI', system-ui, sans-serif;
+}
+/* keep numeric fields (times, prices, stat figures) left-to-right in RTL */
+[dir="rtl"] .stop .time, [dir="rtl"] .stop .price,
+[dir="rtl"] .p-meta, [dir="rtl"] .strip .stat b { direction: ltr; }
+[dir="rtl"] .hero .inner { text-align: right; }
+/* the toolbar spacer uses an inline margin-left:auto — flip it for RTL */
+[dir="rtl"] .toolbar label[for="currency"] { margin: 0 auto 0 0 !important; }
 
 /* --- interactive trip map --- */
 .trip-map { height: 380px; width: 100%; border: 1px solid var(--border); border-radius: var(--radius-lg); margin: 1.2rem 0; background: var(--surface-2); }

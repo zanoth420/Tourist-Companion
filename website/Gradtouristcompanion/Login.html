@@ -6,36 +6,37 @@
   <title>Login — Tourist Companion</title>
   <link rel="icon" href="favicon.png" />
   <script src="js/theme.js"></script>
+  <script src="js/i18n.js"></script>
   <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
   <header class="app-header">
-    <div class="logo">Tourist Companion</div>
+    <div class="logo" data-i18n="brand">Tourist Companion</div>
     <nav id="nav"></nav>
   </header>
 
   <main>
     <div class="card auth-card">
       <div class="tabs">
-        <div class="tab on" data-mode="login">Log in</div>
-        <div class="tab" data-mode="register">Create account</div>
+        <div class="tab on" data-mode="login" data-i18n="login.tab_login">Log in</div>
+        <div class="tab" data-mode="register" data-i18n="login.tab_register">Create account</div>
       </div>
 
       <form id="auth-form">
         <div class="field" id="name-field" style="display:none;">
-          <label for="name">Name</label>
+          <label for="name" data-i18n="label.name">Name</label>
           <input id="name" type="text" maxlength="60" autocomplete="name" />
         </div>
         <div class="field">
-          <label for="email">Email</label>
+          <label for="email" data-i18n="label.email">Email</label>
           <input id="email" type="email" required autocomplete="email" />
         </div>
         <div class="field">
-          <label for="password">Password</label>
+          <label for="password" data-i18n="label.password">Password</label>
           <input id="password" type="password" required minlength="8"
                  autocomplete="current-password" />
         </div>
-        <button type="submit" class="btn full" id="submit-btn">Log in</button>
+        <button type="submit" class="btn full" id="submit-btn" data-i18n="login.submit_login">Log in</button>
       </form>
 
       <div id="status"></div>
@@ -51,22 +52,30 @@
       if (me) window.location.href = 'mytrips.html'; // already logged in
     });
 
+    function updateSubmit() {
+      $('submit-btn').textContent = mode === 'register'
+        ? t('login.submit_register') : t('login.submit_login');
+    }
+
     document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
       tab.classList.add('on');
       mode = tab.dataset.mode;
       $('name-field').style.display = mode === 'register' ? '' : 'none';
       $('name').required = mode === 'register';
-      $('submit-btn').textContent = mode === 'register' ? 'Create account' : 'Log in';
+      updateSubmit();
       $('password').autocomplete = mode === 'register' ? 'new-password' : 'current-password';
       $('status').textContent = '';
     }));
+
+    // keep the mode-dependent submit label correct after a language switch
+    document.addEventListener('langchange', updateSubmit);
 
     $('auth-form').addEventListener('submit', async e => {
       e.preventDefault();
       const status = $('status');
       status.className = '';
-      status.textContent = mode === 'register' ? 'Creating your account…' : 'Logging in…';
+      status.textContent = mode === 'register' ? t('login.creating') : t('login.logging');
 
       const body = { email: $('email').value.trim(), password: $('password').value };
       if (mode === 'register') body.name = $('name').value.trim();
@@ -79,8 +88,7 @@
         });
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
-          const detail = typeof err.detail === 'string' ? err.detail
-            : 'Please check your details (password must be at least 8 characters).';
+          const detail = typeof err.detail === 'string' ? err.detail : t('login.bad_details');
           throw new Error(detail);
         }
         const next = new URLSearchParams(location.search).get('next');

@@ -6,17 +6,18 @@
   <title>My Trips — Tourist Companion</title>
   <link rel="icon" href="favicon.png" />
   <script src="js/theme.js"></script>
+  <script src="js/i18n.js"></script>
   <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
   <header class="app-header">
-    <div class="logo">Tourist Companion</div>
+    <div class="logo" data-i18n="brand">Tourist Companion</div>
     <nav id="nav"></nav>
   </header>
 
   <main>
-    <h1>My trips</h1>
-    <p class="subtitle">Your saved itineraries. Click one to see the full day-by-day plan.</p>
+    <h1 data-i18n="mytrips.h1">My trips</h1>
+    <p class="subtitle" data-i18n="mytrips.sub">Your saved itineraries. Click one to see the full day-by-day plan.</p>
     <div id="status"></div>
     <div id="list"></div>
     <div id="detail"></div>
@@ -37,21 +38,21 @@
     async function loadTrips() {
       const trips = await (await fetch('/api/trips')).json();
       if (!trips.length) {
-        $('list').innerHTML = `<div class="card">No saved trips yet —
-          <a href="build.html">build one</a> and hit “Save this trip”.</div>`;
+        $('list').innerHTML = `<div class="card">${t('mytrips.empty')}
+          <a href="build.html">${t('nav.build')}</a></div>`;
         return;
       }
-      $('list').innerHTML = trips.map(t => `
-        <div class="trip-row" data-id="${t.id}">
-          <span class="t-name">${escapeHtml(t.name)}</span>
-          <span class="t-meta">${t.days} day${t.days > 1 ? 's' : ''} ·
-            ${t.total_places} places · ${t.total_cost} EGP ·
-            saved ${t.created_at.slice(0, 10)}${t.share_token ? ' · 🔗 shared' : ''}</span>
-          <button class="btn secondary" onclick="showTrip(${t.id})">View</button>
-          <button class="btn secondary" onclick="shareTrip(${t.id}, ${!!t.share_token})">
-            ${t.share_token ? 'Copy link' : 'Share'}</button>
-          ${t.share_token ? `<button class="btn danger" onclick="revokeShare(${t.id})">Unshare</button>` : ''}
-          <button class="btn danger" onclick="deleteTrip(${t.id})">Delete</button>
+      $('list').innerHTML = trips.map(tr => `
+        <div class="trip-row" data-id="${tr.id}">
+          <span class="t-name">${escapeHtml(tr.name)}</span>
+          <span class="t-meta">${tr.days} ${tPlural(tr.days)} ·
+            ${tr.total_places} ${t('summary.places')} · ${tr.total_cost} EGP ·
+            ${t('mytrips.saved')} ${tr.created_at.slice(0, 10)}${tr.share_token ? ' · 🔗 ' + t('mytrips.shared') : ''}</span>
+          <button class="btn secondary" onclick="showTrip(${tr.id})">${t('btn.view')}</button>
+          <button class="btn secondary" onclick="shareTrip(${tr.id}, ${!!tr.share_token})">
+            ${tr.share_token ? t('btn.copy_link') : t('btn.share')}</button>
+          ${tr.share_token ? `<button class="btn danger" onclick="revokeShare(${tr.id})">${t('btn.unshare')}</button>` : ''}
+          <button class="btn danger" onclick="deleteTrip(${tr.id})">${t('btn.delete')}</button>
         </div>`).join('');
     }
 
@@ -63,14 +64,14 @@
       $('detail').innerHTML = `
         <div class="summary">
           <div><b>${escapeHtml(currentTrip.name)}</b></div>
-          <div><b>${plan.total_places}</b> places</div>
+          <div><b>${plan.total_places}</b> ${t('summary.places')}</div>
           <div><b><span data-egp="${plan.total_cost}">${Currency.fmt(plan.total_cost)}</span></b></div>
         </div>
         <div class="toolbar no-print">
-          <button class="btn secondary" onclick="window.print()">Print / PDF</button>
+          <button class="btn secondary" onclick="window.print()">${t('btn.print')}</button>
           <button class="btn secondary"
-            onclick="downloadIcs(currentTrip.plan, currentTrip.name)">Add to calendar (.ics)</button>
-          <label for="currency" style="margin:0 0 0 auto;">Currency</label>
+            onclick="downloadIcs(currentTrip.plan, currentTrip.name)">${t('btn.ics')}</button>
+          <label for="currency" style="margin:0 0 0 auto;">${t('label.currency')}</label>
           <select id="currency">
             <option>EGP</option><option>USD</option><option>EUR</option><option>GBP</option>
           </select>
@@ -90,24 +91,25 @@
       const fullUrl = location.origin + '/' + url.replace(/^\//, '');
       try {
         await navigator.clipboard.writeText(fullUrl);
-        flash(`Share link copied: <a href="${url}" target="_blank">${fullUrl}</a>`);
+        flash(`${t('mytrips.link_copied')} <a href="${url}" target="_blank">${fullUrl}</a>`);
       } catch {
-        flash(`Share link: <a href="${url}" target="_blank">${fullUrl}</a>`);
+        flash(`${t('mytrips.link')} <a href="${url}" target="_blank">${fullUrl}</a>`);
       }
       if (!alreadyShared) loadTrips();
     }
 
     async function revokeShare(id) {
-      if (!confirm('Unshare this trip? The existing link will stop working.')) return;
+      if (!confirm(t('confirm.unshare'))) return;
       await fetch(`/api/trips/${id}/share`, { method: 'DELETE' });
-      flash('Link revoked.');
+      flash(t('mytrips.revoked'));
       loadTrips();
     }
 
     async function deleteTrip(id) {
-      if (!confirm('Delete this trip?')) return;
+      if (!confirm(t('confirm.delete'))) return;
       await fetch(`/api/trips/${id}`, { method: 'DELETE' });
       $('detail').innerHTML = '';
+      currentTrip = null;
       loadTrips();
     }
 
@@ -116,6 +118,12 @@
       s.className = 'ok';
       s.innerHTML = html;
     }
+
+    // re-render list and any open trip in the new language
+    document.addEventListener('langchange', () => {
+      loadTrips();
+      if (currentTrip) showTrip(currentTrip.id);
+    });
   </script>
 </body>
 </html>

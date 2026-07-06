@@ -17,6 +17,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 import config
+import admin
 import auth
 import db
 import planning
@@ -36,6 +37,7 @@ app.include_router(rates.router)
 app.include_router(auth.router)
 app.include_router(trips.router)
 app.include_router(trips.public)
+app.include_router(admin.router)
 
 # mounted last so /api/* wins; html=True serves index.html at /
 app.mount("/", StaticFiles(directory=config.SITE_DIR, html=True), name="site")

@@ -52,3 +52,10 @@ MAPS_API_KEY = os.environ.get("TC_MAPS_KEY", "")
 def db_path() -> Path:
     """Resolved per call so tests can point at a temporary database."""
     return Path(os.environ.get("TC_DB_PATH", ROOT / "data" / "app.db"))
+
+
+def admin_emails() -> set[str]:
+    """Emails auto-promoted to admin on login/register (TC_ADMIN_EMAILS,
+    comma-separated). Resolved per call so tests can monkeypatch the env."""
+    return {e.strip().lower()
+            for e in os.environ.get("TC_ADMIN_EMAILS", "").split(",") if e.strip()}

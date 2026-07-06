@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Tourist Companion</title>
+  <link rel="icon" href="favicon.png" />
+  <script src="js/theme.js"></script>
+  <script src="js/i18n.js"></script>
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo" data-i18n="brand">Tourist Companion</div>
+    <nav id="nav"></nav>
+  </header>
+
+  <main>
+    <h1>Admin dashboard</h1>
+    <p class="subtitle">Platform overview — users, trips and sharing activity.</p>
+    <div id="status"></div>
+
+    <div class="strip admin-strip">
+      <div class="stat"><b id="st-users">–</b><span>users</span></div>
+      <div class="stat"><b id="st-trips">–</b><span>saved trips</span></div>
+      <div class="stat"><b id="st-shared">–</b><span>shared trips</span></div>
+      <div class="stat"><b id="st-sessions">–</b><span>active sessions</span></div>
+    </div>
+
+    <h2 class="admin-h2">Users</h2>
+    <div class="card table-card">
+      <table class="admin-table" id="users-table">
+        <thead><tr>
+          <th>ID</th><th>Name</th><th>Email</th><th>Trips</th>
+          <th>Joined</th><th>Role</th><th></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <h2 class="admin-h2">Recent trips</h2>
+    <div class="card table-card">
+      <table class="admin-table" id="trips-table">
+        <thead><tr>
+          <th>ID</th><th>Name</th><th>Owner</th><th>Created</th><th>Shared</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </main>
+
+  <footer class="app-footer">Admin tools — visible to TC_ADMIN_EMAILS accounts only.</footer>
+
+  <script src="js/auth.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    let me = null;
+
+    renderAuthNav('nav').then(u => {
+      me = u;
+      if (!me) { window.location.href = 'Login.html?next=admin.html'; return; }
+      if (!me.is_admin) { window.location.href = 'index.html'; return; }
+      load();
+    });
+
+    async function load() {
+      const res = await fetch('/api/admin/stats');
+      if (!res.ok) { fail(`Could not load stats (${res.status})`); return; }
+      const s = await res.json();
+      $('st-users').textContent = s.users;
+      $('st-trips').textContent = s.trips;
+      $('st-shared').textContent = s.shared_trips;
+      $('st-sessions').textContent = s.active_sessions;
+      renderTrips(s.recent_trips);
+      const users = await (await fetch('/api/admin/users')).json();
+      renderUsers(users);
+    }
+
+    function renderUsers(users) {
+      $('users-table').querySelector('tbody').innerHTML = users.map(u => `
+        <tr>
+          <td>${u.id}</td>
+          <td>${escapeHtml(u.name)}</td>
+          <td>${escapeHtml(u.email)}</td>
+          <td>${u.trips}</td>
+          <td>${String(u.created_at).slice(0, 10)}</td>
+          <td>${u.is_admin ? '<span class="badge">admin</span>' : 'user'}</td>
+          <td>${u.id === me.id ? ''
+            : `<button class="btn danger sm" onclick="deleteUser(${u.id})">Delete</button>`}</td>
+        </tr>`).join('');
+    }
+
+    function renderTrips(trips) {
+      $('trips-table').querySelector('tbody').innerHTML = trips.length
+        ? trips.map(t => `
+          <tr>
+            <td>${t.id}</td>
+            <td>${escapeHtml(t.name)}</td>
+            <td>${escapeHtml(t.user_email)}</td>
+            <td>${String(t.created_at).slice(0, 10)}</td>
+            <td>${t.shared ? '🔗 yes' : '—'}</td>
+          </tr>`).join('')
+        : '<tr><td colspan="5">No trips saved yet.</td></tr>';
+    }
+
+    async function deleteUser(id) {
+      if (!confirm(`Delete user #${id}? Their trips and sessions are removed too.`)) return;
+      const res = await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+      if (!res.ok) { fail('Delete failed.'); return; }
+      load();
+    }
+
+    function fail(msg) {
+      $('status').className = 'error';
+      $('status').textContent = msg;
+    }
+  </script>
+</body>
+</html>

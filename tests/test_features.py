@@ -92,18 +92,28 @@ def test_share_requires_ownership(client, user):
 def test_rates_fallback_when_source_down(client, monkeypatch):
     monkeypatch.setattr(rates, "_fetch_live",
                         lambda: (_ for _ in ()).throw(OSError("down")))
-    monkeypatch.setitem(rates._cache, "rates", None)
     data = client.get("/api/rates").json()
     assert data["stale"] is True
     assert set(data["rates"]) == {"USD", "EUR", "GBP"}
 
 
-def test_rates_served_from_cache(client, monkeypatch):
-    monkeypatch.setitem(rates._cache, "rates", {"USD": 0.02, "EUR": 0.019, "GBP": 0.016})
-    monkeypatch.setitem(rates._cache, "fetched_at", __import__("time").time())
+def test_rates_served_from_cache(client):
+    import cache
+    cache.set_json(rates.FRESH_KEY, {"USD": 0.02, "EUR": 0.019, "GBP": 0.016}, 60)
     data = client.get("/api/rates").json()
     assert data["rates"]["USD"] == 0.02
     assert data["stale"] is False
+
+
+def test_rates_expired_cache_marked_stale(client, monkeypatch):
+    """Regression: an expired cache + failed refresh must report stale=True."""
+    import cache
+    cache.set_json(rates.LAST_KEY, {"USD": 0.02, "EUR": 0.019, "GBP": 0.016})
+    monkeypatch.setattr(rates, "_fetch_live",
+                        lambda: (_ for _ in ()).throw(OSError("down")))
+    data = client.get("/api/rates").json()
+    assert data["stale"] is True
+    assert data["rates"]["USD"] == 0.02  # last-known rates, honestly flagged
 
 
 # --- auth rate limiting --------------------------------------------------------

@@ -36,7 +36,7 @@ def travel_minutes(a, b):
 
 
 def _to_min(hhmm):
-    h, m = hhmm.split(":")
+    h, m = hhmm.split(":")[:2]  # tolerate a stray HH:MM:SS in the data
     return int(h) * 60 + int(m)
 
 

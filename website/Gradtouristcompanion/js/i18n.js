@@ -9,6 +9,7 @@ const I18N = {
     brand: 'Tourist Companion',
     'nav.home': 'Home', 'nav.programs': 'Programs', 'nav.build': 'Build Trip',
     'nav.mytrips': 'My Trips', 'nav.login': 'Login', 'nav.logout': 'Logout',
+    'nav.admin': 'Admin',
 
     'home.eyebrow': 'Egypt · optimized itineraries',
     'home.h1': 'Egypt, curated for you.',
@@ -90,6 +91,7 @@ const I18N = {
     brand: 'رفيق السائح',
     'nav.home': 'الرئيسية', 'nav.programs': 'البرامج', 'nav.build': 'صمّم رحلتك',
     'nav.mytrips': 'رحلاتي', 'nav.login': 'تسجيل الدخول', 'nav.logout': 'تسجيل الخروج',
+    'nav.admin': 'الإدارة',
 
     'home.eyebrow': 'مصر · خطط سياحية محسّنة',
     'home.h1': 'مصر، مُصمّمة من أجلك.',

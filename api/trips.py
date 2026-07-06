@@ -6,13 +6,12 @@ Sharing gives out an unguessable token; anyone with the link can view
 
 import json
 import secrets
-import sqlite3
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from auth import current_user
-from db import get_db
+from db import Db, get_db, insert_id
 
 router = APIRouter(prefix="/api/trips", tags=["trips"])
 public = APIRouter(prefix="/api", tags=["trips"])
@@ -34,16 +33,16 @@ def _summary(plan: dict) -> dict:
 
 @router.post("", status_code=201)
 def save_trip(req: SaveTripRequest, user: dict = Depends(current_user),
-              db: sqlite3.Connection = Depends(get_db)):
-    cur = db.execute(
-        "INSERT INTO trips (user_id, name, params_json, plan_json) VALUES (?, ?, ?, ?)",
+              db: Db = Depends(get_db)):
+    trip_id = insert_id(
+        db, "INSERT INTO trips (user_id, name, params_json, plan_json) VALUES (?, ?, ?, ?)",
         (user["id"], req.name.strip(), json.dumps(req.params), json.dumps(req.plan)))
-    return {"id": cur.lastrowid}
+    return {"id": trip_id}
 
 
 @router.get("")
 def list_trips(user: dict = Depends(current_user),
-               db: sqlite3.Connection = Depends(get_db)):
+               db: Db = Depends(get_db)):
     rows = db.execute(
         "SELECT id, name, plan_json, share_token, created_at FROM trips "
         "WHERE user_id = ? ORDER BY created_at DESC", (user["id"],)).fetchall()
@@ -54,7 +53,7 @@ def list_trips(user: dict = Depends(current_user),
 
 @router.get("/{trip_id}")
 def get_trip(trip_id: int, user: dict = Depends(current_user),
-             db: sqlite3.Connection = Depends(get_db)):
+             db: Db = Depends(get_db)):
     row = db.execute("SELECT * FROM trips WHERE id = ? AND user_id = ?",
                      (trip_id, user["id"])).fetchone()
     if row is None:
@@ -66,7 +65,7 @@ def get_trip(trip_id: int, user: dict = Depends(current_user),
 
 @router.delete("/{trip_id}")
 def delete_trip(trip_id: int, user: dict = Depends(current_user),
-                db: sqlite3.Connection = Depends(get_db)):
+                db: Db = Depends(get_db)):
     cur = db.execute("DELETE FROM trips WHERE id = ? AND user_id = ?",
                      (trip_id, user["id"]))
     if cur.rowcount == 0:
@@ -78,7 +77,7 @@ def delete_trip(trip_id: int, user: dict = Depends(current_user),
 
 @router.post("/{trip_id}/share")
 def share_trip(trip_id: int, user: dict = Depends(current_user),
-               db: sqlite3.Connection = Depends(get_db)):
+               db: Db = Depends(get_db)):
     row = db.execute("SELECT share_token FROM trips WHERE id = ? AND user_id = ?",
                      (trip_id, user["id"])).fetchone()
     if row is None:
@@ -92,7 +91,7 @@ def share_trip(trip_id: int, user: dict = Depends(current_user),
 
 @router.delete("/{trip_id}/share")
 def revoke_share(trip_id: int, user: dict = Depends(current_user),
-                 db: sqlite3.Connection = Depends(get_db)):
+                 db: Db = Depends(get_db)):
     cur = db.execute("UPDATE trips SET share_token = NULL "
                      "WHERE id = ? AND user_id = ?", (trip_id, user["id"]))
     if cur.rowcount == 0:
@@ -101,7 +100,7 @@ def revoke_share(trip_id: int, user: dict = Depends(current_user),
 
 
 @public.get("/shared/{token}")
-def get_shared(token: str, db: sqlite3.Connection = Depends(get_db)):
+def get_shared(token: str, db: Db = Depends(get_db)):
     row = db.execute("SELECT name, plan_json, created_at FROM trips "
                      "WHERE share_token = ?", (token,)).fetchone()
     if row is None:

@@ -26,7 +26,11 @@ const TripMap = {
       s.src = 'https://maps.googleapis.com/maps/api/js?v=weekly&key=' + encodeURIComponent(key);
       s.async = true;
       s.onload = resolve;
-      s.onerror = () => reject(new Error('Google Maps failed to load'));
+      s.onerror = () => {
+        this._sdkPromise = null;  // don't cache the failure — retry next render
+        s.remove();
+        reject(new Error('Google Maps failed to load'));
+      };
       document.head.appendChild(s);
     });
     return this._sdkPromise;

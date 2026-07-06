@@ -177,7 +177,8 @@ function downloadIcs(plan, tripName) {
   const blob = new Blob([icsForPlan(plan, tripName)], { type: 'text/calendar' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = tripName.replace(/[^\w-]+/g, '_').toLowerCase() + '.ics';
+  // \p{L}\p{N} keeps non-Latin (e.g. Arabic) trip names readable in the filename
+  a.download = tripName.replace(/[^\p{L}\p{N}-]+/gu, '_').toLowerCase() + '.ics';
   a.click();
   URL.revokeObjectURL(a.href);
 }

@@ -3,43 +3,35 @@
 Passwords are hashed with PBKDF2-SHA256 (stdlib, OWASP-recommended
 iteration count). Sessions are opaque random tokens in an HttpOnly
 SameSite=Lax cookie; only the token's SHA-256 is stored server-side.
+Emails are normalized to lowercase so uniqueness holds on any backend.
 """
 
 import hashlib
 import hmac
 import secrets
-import sqlite3
-import time
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from pydantic import BaseModel, Field
 
+import cache
+import config
 from config import COOKIE_SECURE, SESSION_COOKIE, SESSION_DAYS
-from db import get_db
+from db import Db, IntegrityError, get_db, insert_id
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 PBKDF2_ITERATIONS = 600_000
 EMAIL_PATTERN = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
 
-# --- rate limiting (in-memory sliding window; fine for a single process) --
-
 RATE_LIMIT_ATTEMPTS = 10
 RATE_LIMIT_WINDOW = 300  # seconds
-_attempts: dict[str, list[float]] = {}
 
 
 def check_rate_limit(request: Request):
     ip = request.client.host if request.client else "unknown"
-    now = time.monotonic()
-    window = [t for t in _attempts.get(ip, []) if now - t < RATE_LIMIT_WINDOW]
-    if len(window) >= RATE_LIMIT_ATTEMPTS:
+    if not cache.rate_hit(f"auth:{ip}", RATE_LIMIT_ATTEMPTS, RATE_LIMIT_WINDOW):
         raise HTTPException(429, "Too many attempts — try again in a few minutes")
-    window.append(now)
-    _attempts[ip] = window
-    if len(_attempts) > 10_000:  # bound memory under address churn
-        _attempts.clear()
 
 
 # --- password hashing ---------------------------------------------------
@@ -67,7 +59,7 @@ def _token_hash(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
 
 
-def _create_session(db: sqlite3.Connection, user_id: int, response: Response):
+def _create_session(db: Db, user_id: int, response: Response):
     token = secrets.token_urlsafe(32)
     expires = datetime.now(timezone.utc) + timedelta(days=SESSION_DAYS)
     db.execute("INSERT INTO sessions (token_hash, user_id, expires_at) VALUES (?, ?, ?)",
@@ -76,19 +68,33 @@ def _create_session(db: sqlite3.Connection, user_id: int, response: Response):
                         httponly=True, samesite="lax", secure=COOKIE_SECURE)
 
 
-def current_user(request: Request, db: sqlite3.Connection = Depends(get_db)):
+def current_user(request: Request, db: Db = Depends(get_db)):
     token = request.cookies.get(SESSION_COOKIE)
     if not token:
         raise HTTPException(401, "Not logged in")
-    db.execute("DELETE FROM sessions WHERE expires_at < ?",
-               (datetime.now(timezone.utc).isoformat(),))
     row = db.execute(
-        "SELECT u.id, u.email, u.name FROM sessions s JOIN users u ON u.id = s.user_id "
+        "SELECT u.id, u.email, u.name, u.is_admin "
+        "FROM sessions s JOIN users u ON u.id = s.user_id "
         "WHERE s.token_hash = ? AND s.expires_at >= ?",
         (_token_hash(token), datetime.now(timezone.utc).isoformat())).fetchone()
     if row is None:
         raise HTTPException(401, "Session expired — please log in again")
-    return dict(row)
+    return {"id": row["id"], "email": row["email"], "name": row["name"],
+            "is_admin": bool(row["is_admin"])}
+
+
+def require_admin(user: dict = Depends(current_user)) -> dict:
+    if not user["is_admin"]:
+        raise HTTPException(403, "Admin access required")
+    return user
+
+
+def _promote_if_admin_email(db: Db, user_id: int, email: str) -> bool:
+    """Grant admin to emails listed in TC_ADMIN_EMAILS."""
+    if email in config.admin_emails():
+        db.execute("UPDATE users SET is_admin = ? WHERE id = ?", (True, user_id))
+        return True
+    return False
 
 
 # --- endpoints ----------------------------------------------------------
@@ -106,32 +112,41 @@ class LoginRequest(BaseModel):
 
 @router.post("/register", status_code=201)
 def register(req: RegisterRequest, request: Request, response: Response,
-             db: sqlite3.Connection = Depends(get_db)):
+             db: Db = Depends(get_db)):
     check_rate_limit(request)
+    email = req.email.strip().lower()
     try:
-        cur = db.execute("INSERT INTO users (email, name, password_hash) VALUES (?, ?, ?)",
-                         (req.email.strip(), req.name.strip(), hash_password(req.password)))
-    except sqlite3.IntegrityError:
+        user_id = insert_id(
+            db, "INSERT INTO users (email, name, password_hash) VALUES (?, ?, ?)",
+            (email, req.name.strip(), hash_password(req.password)))
+    except IntegrityError:
         raise HTTPException(409, "An account with this email already exists")
-    _create_session(db, cur.lastrowid, response)
-    return {"id": cur.lastrowid, "name": req.name.strip(), "email": req.email.strip()}
+    is_admin = _promote_if_admin_email(db, user_id, email)
+    _create_session(db, user_id, response)
+    return {"id": user_id, "name": req.name.strip(), "email": email,
+            "is_admin": is_admin}
 
 
 @router.post("/login")
 def login(req: LoginRequest, request: Request, response: Response,
-          db: sqlite3.Connection = Depends(get_db)):
+          db: Db = Depends(get_db)):
     check_rate_limit(request)
-    row = db.execute("SELECT id, email, name, password_hash FROM users WHERE email = ?",
-                     (req.email.strip(),)).fetchone()
+    email = req.email.strip().lower()
+    row = db.execute("SELECT id, email, name, password_hash, is_admin "
+                     "FROM users WHERE email = ?", (email,)).fetchone()
     if row is None or not verify_password(req.password, row["password_hash"]):
         raise HTTPException(401, "Invalid email or password")
+    is_admin = bool(row["is_admin"]) or _promote_if_admin_email(db, row["id"], email)
+    # housekeeping here, not on every authenticated request
+    db.execute("DELETE FROM sessions WHERE expires_at < ?",
+               (datetime.now(timezone.utc).isoformat(),))
     _create_session(db, row["id"], response)
-    return {"id": row["id"], "name": row["name"], "email": row["email"]}
+    return {"id": row["id"], "name": row["name"], "email": row["email"],
+            "is_admin": is_admin}
 
 
 @router.post("/logout")
-def logout(request: Request, response: Response,
-           db: sqlite3.Connection = Depends(get_db)):
+def logout(request: Request, response: Response, db: Db = Depends(get_db)):
     token = request.cookies.get(SESSION_COOKIE)
     if token:
         db.execute("DELETE FROM sessions WHERE token_hash = ?", (_token_hash(token),))

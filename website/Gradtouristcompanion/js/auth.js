@@ -31,6 +31,7 @@ async function renderAuthNav(navId) {
   if (me) {
     nav.innerHTML = base
       + `<a href="mytrips.html">${T('nav.mytrips')}</a>`
+      + (me.is_admin ? `<a href="admin.html">${T('nav.admin')}</a>` : '')
       + `<span class="user">${escapeHtml(me.name)}</span>`
       + `<a href="#" onclick="logout();return false;">${T('nav.logout')}</a>` + toggles;
   } else {

@@ -1,16 +1,18 @@
 """Exchange rates for the currency toggle (EGP -> USD/EUR/GBP).
 
-Fetched from the free, key-less open.er-api.com endpoint and cached in
-memory for 12 hours. If the fetch fails (offline, rate-limited), a static
-fallback is served with `stale: true` so the UI can hint the rate is
-approximate. Display-only — all money in the system stays in EGP.
+Fetched from the free, key-less open.er-api.com endpoint and cached for
+12 hours (Redis when available, in-memory otherwise). If a refresh fails,
+the last known rates are served with `stale: true` — previously this case
+wrongly reported stale rates as fresh. Display-only — all money in the
+system stays in EGP.
 """
 
-import time
 import urllib.request
 import json
 
 from fastapi import APIRouter
+
+import cache
 
 router = APIRouter(prefix="/api", tags=["rates"])
 
@@ -18,10 +20,11 @@ CURRENCIES = ("USD", "EUR", "GBP")
 CACHE_TTL = 12 * 3600
 SOURCE_URL = "https://open.er-api.com/v6/latest/EGP"
 
-# Approximate fallback (July 2026); only used when the live fetch fails.
-FALLBACK = {"USD": 0.021, "EUR": 0.018, "GBP": 0.015}
+FRESH_KEY = "rates:fresh"   # expires after CACHE_TTL
+LAST_KEY = "rates:last"     # never expires; stale fallback
 
-_cache = {"rates": None, "fetched_at": 0.0}
+# Approximate fallback (July 2026); only used when nothing was ever fetched.
+FALLBACK = {"USD": 0.021, "EUR": 0.018, "GBP": 0.015}
 
 
 def _fetch_live():
@@ -34,13 +37,14 @@ def _fetch_live():
 
 @router.get("/rates")
 def get_rates():
-    now = time.time()
-    if _cache["rates"] is None or now - _cache["fetched_at"] > CACHE_TTL:
-        try:
-            _cache["rates"] = _fetch_live()
-            _cache["fetched_at"] = now
-        except Exception:
-            if _cache["rates"] is None:  # nothing cached yet — use fallback
-                return {"base": "EGP", "rates": FALLBACK, "stale": True}
-            # keep serving the stale cache, retry next request
-    return {"base": "EGP", "rates": _cache["rates"], "stale": False}
+    rates = cache.get_json(FRESH_KEY)
+    if rates is not None:
+        return {"base": "EGP", "rates": rates, "stale": False}
+    try:
+        rates = _fetch_live()
+        cache.set_json(FRESH_KEY, rates, CACHE_TTL)
+        cache.set_json(LAST_KEY, rates)
+        return {"base": "EGP", "rates": rates, "stale": False}
+    except Exception:
+        last = cache.get_json(LAST_KEY)
+        return {"base": "EGP", "rates": last or FALLBACK, "stale": True}

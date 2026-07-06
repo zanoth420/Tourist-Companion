@@ -1,5 +1,3 @@
-import os
-
 import pytest
 from fastapi.testclient import TestClient
 
@@ -8,8 +6,8 @@ from fastapi.testclient import TestClient
 def client(tmp_path, monkeypatch):
     """API client backed by a throwaway database."""
     monkeypatch.setenv("TC_DB_PATH", str(tmp_path / "test.db"))
-    import auth
-    auth._attempts.clear()  # rate-limit state must not leak between tests
+    import cache
+    cache.reset()  # rate-limit / rates state must not leak between tests
     from main import app
     with TestClient(app) as c:
         yield c

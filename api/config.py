@@ -42,6 +42,11 @@ COOKIE_SECURE = _bool("TC_COOKIE_SECURE", IS_PRODUCTION)
 # Port is read by the start command ($PORT); kept here for reference/local use.
 PORT = int(os.environ.get("PORT", "8000"))
 
+# Public browser key for the Google Maps JavaScript API (the interactive trip
+# map). It ships to the client, so it must be restricted by HTTP referrer in the
+# Google Cloud console. Empty = the map feature quietly hides.
+MAPS_API_KEY = os.environ.get("TC_MAPS_KEY", "")
+
 
 def db_path() -> Path:
     """Resolved per call so tests can point at a temporary database."""

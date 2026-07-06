@@ -336,6 +336,10 @@ footer.app-footer a { color: var(--gold); }
   .hero h1 { font-size: 2.2rem; }
 }
 
+/* --- interactive trip map --- */
+.trip-map { height: 380px; width: 100%; border: 1px solid var(--border); border-radius: var(--radius-lg); margin: 1.2rem 0; background: var(--surface-2); }
+@media (max-width: 760px) { .trip-map { height: 300px; } }
+
 /* --- print (Save as PDF) --- */
 @media print {
   header.app-header, footer.app-footer, form, .toolbar, .programs, .hero,

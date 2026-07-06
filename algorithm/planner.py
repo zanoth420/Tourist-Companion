@@ -70,6 +70,8 @@ def plan_as_json(**kwargs):
             "category": s["place"]["category"],
             "price": s["place"]["price"],
             "rating": s["place"]["rating"],
+            "lat": float(s["place"]["lat"]),
+            "lon": float(s["place"]["lon"]),
             "arrive": format_time(s["arrive"]),
             "depart": format_time(s["depart"]),
             "after_hours": s["after_hours"],

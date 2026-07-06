@@ -24,6 +24,7 @@
 
   <script src="js/auth.js"></script>
   <script src="js/itinerary.js"></script>
+  <script src="js/map.js"></script>
   <script>
     const $ = id => document.getElementById(id);
     let currentTrip = null;
@@ -74,8 +75,10 @@
             <option>EGP</option><option>USD</option><option>EUR</option><option>GBP</option>
           </select>
         </div>
+        <div id="trip-map" class="trip-map no-print"></div>
         <div id="days-container"></div>`;
       renderItinerary($('days-container'), plan);
+      if (window.TripMap) TripMap.render($('trip-map'), plan);
       Currency.init($('currency'));
       $('detail').scrollIntoView({ behavior: 'smooth' });
     }

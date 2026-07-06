@@ -39,6 +39,12 @@ def get_presets():
         return json.load(f)
 
 
+@router.get("/config")
+def get_config():
+    """Public front-end config. The Maps key is a referrer-restricted browser key."""
+    return {"maps_key": config.MAPS_API_KEY}
+
+
 @router.post("/plan")
 def post_plan(req: PlanRequest):
     try:

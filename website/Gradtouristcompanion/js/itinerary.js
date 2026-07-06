@@ -78,6 +78,8 @@ function prettyDate(iso) {
    the per-stop lock/remove buttons (build page only). */
 function renderItinerary(container, plan, opts = {}) {
   const it = opts.interactive;
+  const ar = typeof getLang === 'function' && getLang() === 'ar';
+  const cityLabel = c => (typeof tCity === 'function' ? tCity(c) : c);
   let html = '';
   for (const day of plan.days) {
     const dateLabel = day.date ? ` · ${prettyDate(day.date)}` : '';
@@ -99,10 +101,10 @@ function renderItinerary(container, plan, opts = {}) {
       return `
         <div class="stop">
           <span class="time">${s.arrive}–${s.depart}</span>
-          <span class="name">${_esc(s.name)}${s.needs_verification ? ' *' : ''}
+          <span class="name">${_esc(ar && s.name_ar ? s.name_ar : s.name)}${s.needs_verification ? ' *' : ''}
             <a class="map-link" href="${mapsPlaceUrl(s)}" target="_blank"
                rel="noopener" title="Open in Google Maps">📍</a>
-            <span class="meta"> ${_esc(s.area)} · ★${s.rating}</span>
+            <span class="meta"> ${_esc(ar && s.area_ar ? s.area_ar : s.area)} · ★${s.rating}</span>
             ${s.after_hours ? `<span class="warn"> ${t('itin.after_hours')}</span>` : ''}
           </span>
           ${actions}
@@ -112,7 +114,7 @@ function renderItinerary(container, plan, opts = {}) {
     html += `
       <div class="day">
         <div class="day-head">
-          <span>${t('itin.day')} ${day.day} — ${_esc(day.city)}${dateLabel}</span>
+          <span>${t('itin.day')} ${day.day} — ${_esc(cityLabel(day.city))}${dateLabel}</span>
           <span><span data-egp="${day.total_cost}">${Currency.fmt(day.total_cost)}</span>
             · ${t('itin.done_by')} ${day.end}${routeLink}</span>
         </div>

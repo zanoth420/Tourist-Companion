@@ -19,6 +19,7 @@ except ImportError:
 
 SITE_DIR = ROOT / "website" / "Gradtouristcompanion"
 PRESETS_FILE = ROOT / "data" / "presets.json"
+PLACES_AR_FILE = ROOT / "data" / "places.ar.json"  # Arabic name/area per place id
 
 # make the algorithm package importable (planner, solver, scheduler)
 sys.path.insert(0, str(ROOT / "algorithm"))

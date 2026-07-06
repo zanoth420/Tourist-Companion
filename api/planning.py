@@ -12,6 +12,29 @@ from solver import DATA_FILE
 
 router = APIRouter(prefix="/api", tags=["planning"])
 
+_ar_cache = None
+
+
+def _ar_places():
+    """Arabic name/area per place id (loaded once). Empty if the file is absent."""
+    global _ar_cache
+    if _ar_cache is None:
+        try:
+            with open(config.PLACES_AR_FILE, encoding="utf-8") as f:
+                _ar_cache = json.load(f)
+        except FileNotFoundError:
+            _ar_cache = {}
+    return _ar_cache
+
+
+def _add_arabic(place):
+    """Attach name_ar/area_ar to a dict that has an 'id'; the frontend picks by language."""
+    tr = _ar_places().get(place.get("id"))
+    if tr:
+        place["name_ar"] = tr["name"]
+        place["area_ar"] = tr["area"]
+    return place
+
 
 class PlanRequest(BaseModel):
     budget: int = Field(gt=0, description="ticket budget in EGP")
@@ -30,7 +53,7 @@ class PlanRequest(BaseModel):
 @router.get("/places")
 def get_places():
     with open(DATA_FILE, newline="", encoding="utf-8") as f:
-        return list(csv.DictReader(f))
+        return [_add_arabic(row) for row in csv.DictReader(f)]
 
 
 @router.get("/presets")
@@ -48,10 +71,14 @@ def get_config():
 @router.post("/plan")
 def post_plan(req: PlanRequest):
     try:
-        return plan_as_json(budget=req.budget, tier=req.tier, student=req.student,
-                            days=req.days, hours_per_day=req.hours_per_day,
-                            weights=req.preferences, cities=req.cities,
-                            locked=req.locked, excluded=req.excluded,
-                            start_date=req.start_date, spend=req.spend)
+        result = plan_as_json(budget=req.budget, tier=req.tier, student=req.student,
+                              days=req.days, hours_per_day=req.hours_per_day,
+                              weights=req.preferences, cities=req.cities,
+                              locked=req.locked, excluded=req.excluded,
+                              start_date=req.start_date, spend=req.spend)
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
+    for day in result["days"]:
+        for stop in day["stops"]:
+            _add_arabic(stop)
+    return result

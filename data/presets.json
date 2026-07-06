@@ -2,8 +2,10 @@
   {
     "id": "pharaonic",
     "name": "Pharaonic Essentials",
+    "name_ar": "أساسيات الفراعنة",
     "image": "img/Pyramids.jpg",
     "description": "Giza plateau with pyramid interiors, Saqqara and Dahshur — the ancient-Egypt core, optimized for three days.",
+    "description_ar": "هضبة الجيزة بدواخل الأهرامات وسقارة ودهشور — جوهر مصر القديمة في ثلاثة أيام.",
     "params": {
       "budget": 6000,
       "days": 3,
@@ -16,8 +18,10 @@
   {
     "id": "museums",
     "name": "Museum Grand Tour",
+    "name_ar": "جولة المتاحف الكبرى",
     "image": "img/Museum.jpg",
     "description": "The Grand Egyptian Museum, Tahrir, NMEC and Cairo's house museums across two full days.",
+    "description_ar": "المتحف المصري الكبير والتحرير والحضارة وبيوت القاهرة المتحفية في يومين كاملين.",
     "params": {
       "budget": 4500,
       "days": 2,
@@ -30,8 +34,10 @@
   {
     "id": "alexandria",
     "name": "Alexandria Day Trip",
+    "name_ar": "يوم في الإسكندرية",
     "image": "img/Alex.jpg",
     "description": "Qaitbay, the Catacombs, the Roman Amphitheatre and more — one packed Mediterranean day.",
+    "description_ar": "قايتباي والكتاكومب والمسرح الروماني وأكثر — يوم متوسطي حافل.",
     "params": {
       "budget": 1500,
       "days": 1,
@@ -44,8 +50,10 @@
   {
     "id": "cairo-heritage",
     "name": "Islamic & Coptic Cairo",
+    "name_ar": "القاهرة الإسلامية والقبطية",
     "image": "img/Khan Al-Khalili.jpg",
     "description": "Mosques, churches, palaces and bazaars of historic Cairo over two days.",
+    "description_ar": "مساجد وكنائس وقصور وأسواق القاهرة التاريخية في يومين.",
     "params": {
       "budget": 2500,
       "days": 2,
@@ -59,8 +67,10 @@
   {
     "id": "budget",
     "name": "Egypt on a Budget",
+    "name_ar": "مصر باقتصاد",
     "image": "img/great_sphinx.webp",
     "description": "Two days of the best free and low-cost sights — proof you don't need a big budget.",
+    "description_ar": "يومان من أفضل المعالم المجانية وقليلة التكلفة — إثبات أنك لا تحتاج ميزانية كبيرة.",
     "params": {
       "budget": 900,
       "days": 2,
@@ -72,8 +82,10 @@
   {
     "id": "luxor-thebes",
     "name": "Luxor: Thebes in Two Days",
+    "name_ar": "الأقصر: طيبة في يومين",
     "image": "img/Antiques.jpg",
     "description": "Karnak and Luxor Temple on the east bank, then the Valley of the Kings, Hatshepsut and the tombs on the west.",
+    "description_ar": "الكرنك ومعبد الأقصر في البر الشرقي، ثم وادي الملوك وحتشبسوت والمقابر في البر الغربي.",
     "params": {
       "budget": 5000,
       "days": 2,
@@ -87,8 +99,10 @@
   {
     "id": "aswan-abu-simbel",
     "name": "Aswan & Abu Simbel",
+    "name_ar": "أسوان وأبو سمبل",
     "image": "img/header-bg-img.jpg",
     "description": "Philae, the Unfinished Obelisk and the Nubia Museum, plus the great temples of Abu Simbel.",
+    "description_ar": "فيلة والمسلة الناقصة ومتحف النوبة، بالإضافة إلى معابد أبو سمبل العظيمة.",
     "params": {
       "budget": 4000,
       "days": 2,
@@ -102,8 +116,10 @@
   {
     "id": "grand-week",
     "name": "The Grand Week",
+    "name_ar": "الأسبوع الكبير",
     "image": "img/pyramids_of_giza.jpg",
     "description": "Eight days across Egypt: Giza and Saqqara, historic Cairo, the temples of Luxor, and Aswan with Abu Simbel.",
+    "description_ar": "ثمانية أيام عبر مصر: الجيزة وسقارة، القاهرة التاريخية، معابد الأقصر، وأسوان مع أبو سمبل.",
     "params": {
       "budget": 22000,
       "days": 8,
@@ -115,8 +131,10 @@
   {
     "id": "sharm-red-sea",
     "name": "Sharm & Ras Mohammed",
+    "name_ar": "شرم ورأس محمد",
     "image": "img/header-bg-img.jpg",
     "description": "Two Red Sea days in Sharm el-Sheikh — Ras Mohammed's reefs and mangroves, the town museum, Naama Bay and the old market.",
+    "description_ar": "يومان على البحر الأحمر في شرم الشيخ — شعاب رأس محمد والمنجروف، متحف المدينة، خليج نعمة والسوق القديم.",
     "params": {
       "budget": 2000,
       "days": 2,
@@ -130,8 +148,10 @@
   {
     "id": "sinai-explorer",
     "name": "Sinai: Dahab & St Catherine",
+    "name_ar": "سيناء: دهب وسانت كاترين",
     "image": "img/offer-img.jpg",
     "description": "Laid-back Dahab — the Blue Hole, Blue Lagoon and house reefs — paired with the climb up Mount Sinai and St Catherine's Monastery.",
+    "description_ar": "دهب الهادئة — الثقب الأزرق والبحيرة الزرقاء والشعاب — مع تسلق جبل موسى ودير سانت كاترين.",
     "params": {
       "budget": 2500,
       "days": 3,

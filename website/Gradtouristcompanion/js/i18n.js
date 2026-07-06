@@ -178,6 +178,21 @@ function t(key) {
 // day/days (or يوم/أيام) helper for counts
 function tPlural(n) { return t(n === 1 ? 'summary.day' : 'summary.days'); }
 
+// City names are shared across the dataset — translate them here rather than
+// in the per-place data. A day's city string may join several with " + ".
+const CITY_AR = {
+  'Giza': 'الجيزة', 'Cairo': 'القاهرة', 'Alexandria': 'الإسكندرية',
+  'Luxor': 'الأقصر', 'Aswan': 'أسوان', 'Kom Ombo': 'كوم أمبو', 'Edfu': 'إدفو',
+  'Abu Simbel': 'أبو سمبل', 'Sharm el-Sheikh': 'شرم الشيخ', 'Dahab': 'دهب',
+  'Ain Sokhna': 'العين السخنة', 'Saint Catherine': 'سانت كاترين',
+  'Hurghada': 'الغردقة', 'El Quseir': 'القصير', 'Nuweiba': 'نويبع', 'Taba': 'طابا',
+};
+
+function tCity(city) {
+  if (getLang() !== 'ar') return city;
+  return String(city).split(' + ').map(c => CITY_AR[c.trim()] || c.trim()).join(' + ');
+}
+
 (function () {                         // set dir/lang before paint, no flash
   const l = getLang();
   document.documentElement.setAttribute('lang', l);

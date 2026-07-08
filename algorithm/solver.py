@@ -59,17 +59,24 @@ def load_places(path, tier, student, cities):
 #   premium -> add cost, so the plan spends the budget on premium attractions
 SPEND_BIAS = {"value": -1, "balanced": 0, "premium": 1}
 
-# When the user boosts interests, categories they did NOT pick fade rather
-# than compete at full strength — otherwise short, free, high-rated places
-# in other categories dominate the value-per-minute race and a "nature"
-# trip fills up with churches.
-UNLISTED_WEIGHT = 0.5
+# Categories split into themes and neutral leisure. Themes are a trip's
+# identity — when the user picks interests, other themes are excluded
+# outright (a nature trip must not fill up with mosques and churches).
+# Neutral categories complement any theme (a museum or a promenade fits a
+# beach day and a pharaonic day alike), so they stay as faded fillers.
+NEUTRAL_CATEGORIES = {"museum", "experience"}
+NEUTRAL_WEIGHT = 0.5
+
+# A region needs at least this much on-theme content to earn a trip day —
+# enough for a 2-hour flagship (Abu Simbel) but not a lone 90-minute bay.
+MIN_THEME_MINUTES = 120
 
 
 def place_value(place, weights=None, spend_bias=0):
     """Integer objective value: preference-weighted rating, biased by cost."""
     if weights:
-        w = weights.get(place["category"], UNLISTED_WEIGHT)
+        default = NEUTRAL_WEIGHT if place["category"] in NEUTRAL_CATEGORIES else 0
+        w = weights.get(place["category"], default)
     else:
         w = 1.0
     return round(place["rating"] * 1000 * w) + spend_bias * place["price"]
@@ -92,6 +99,16 @@ def solve(places, budget, max_minutes=None, weights=None, locked=None,
     if excluded:
         places = [p for p in places if p["id"] not in set(excluded)]
 
+    # Interests act as a theme filter: keep the chosen themes plus neutral
+    # leisure; drop other themes. Locked places survive the filter — the
+    # user pinned them on purpose.
+    preferred = set(weights) if weights else None
+    if preferred:
+        allowed = preferred | NEUTRAL_CATEGORIES
+        locked_set = set(locked or [])
+        places = [p for p in places
+                  if p["category"] in allowed or p["id"] in locked_set]
+
     model = cp_model.CpModel()
     by_id = {p["id"]: p for p in places}
     x = {p["id"]: model.new_bool_var(p["id"]) for p in places}
@@ -112,13 +129,19 @@ def solve(places, budget, max_minutes=None, weights=None, locked=None,
             zones.setdefault(zone(p), []).append(p)
         z = {name: model.new_bool_var(f"zone:{name}") for name in zones}
         for name, members in zones.items():
-            time_in_zone = sum(x[p["id"]] * p["visit_min"] for p in members)
             for p in members:
                 model.add_implication(x[p["id"]], z[name])
-            # visiting a region must be worth it (capped by what it offers)
-            need = min(min_zone_minutes, sum(p["visit_min"] for p in members))
+            # a region must earn its day through the chosen interests
+            # (with no interests set, any category counts)
+            counted = ([p for p in members if p["category"] in preferred]
+                       if preferred else members)
+            if preferred and sum(p["visit_min"] for p in counted) < MIN_THEME_MINUTES:
+                model.add(z[name] == 0)  # not enough on-theme here for a day
+                continue
+            need = min(min_zone_minutes, sum(p["visit_min"] for p in counted))
             if need:
-                model.add(time_in_zone >= need).only_enforce_if(z[name])
+                model.add(sum(x[p["id"]] * p["visit_min"] for p in counted)
+                          >= need).only_enforce_if(z[name])
         model.add(sum(z.values()) <= max_zones)
 
     for p in places:

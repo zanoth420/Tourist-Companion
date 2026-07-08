@@ -45,6 +45,10 @@ def plan(budget, tier="foreign", student=False, days=3, hours_per_day=9.0,
             if min_zone:
                 min_zone = 0  # relax "worth a day" (tight budgets/filters)
                 continue
+            if weights:
+                raise ValueError("No places match your interests in these "
+                                 "regions — try other regions or fewer "
+                                 "interest chips.")
             raise ValueError(f"No feasible plan (solver status: {status}). "
                              "If you locked places, they may not fit the budget "
                              "or span more regions than you have days.")

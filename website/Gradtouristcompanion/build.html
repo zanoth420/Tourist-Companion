@@ -156,7 +156,9 @@
     // --- planning ----------------------------------------------------------
     $('plan-form').addEventListener('submit', e => { e.preventDefault(); buildTrip(); });
 
-    async function buildTrip() {
+    // pinCurrent: hand-edits (✕ / restore) keep the rest of the visible plan
+    // stable and only fill the gap — a fresh "Build my trip" re-optimizes all.
+    async function buildTrip(pinCurrent = false, pinAlso = null) {
       const status = $('status');
       const submitBtn = document.querySelector('#plan-form button[type="submit"]');
       submitBtn.disabled = true;
@@ -166,6 +168,14 @@
       const preferences = {};
       document.querySelectorAll('#chips .chip.on').forEach(c => preferences[c.dataset.cat] = 2);
 
+      const locked = new Set(lockedIds);
+      if (pinCurrent && lastPlan) {
+        for (const d of lastPlan.days) {
+          for (const s of d.stops) if (!excluded.has(s.id)) locked.add(s.id);
+        }
+        if (pinAlso) locked.add(pinAlso);
+      }
+
       lastParams = {
         budget: +$('budget').value,
         days: +$('days').value,
@@ -174,7 +184,7 @@
         student: !!$('student').value,
         preferences: Object.keys(preferences).length ? preferences : null,
         cities: selectedCities(),
-        locked: lockedIds.size ? [...lockedIds] : null,
+        locked: locked.size ? [...locked] : null,
         excluded: excluded.size ? [...excluded.keys()] : null,
         start_date: $('start-date').value || null,
         spend: $('spend').value,
@@ -195,6 +205,7 @@
         render();
         status.textContent = '';
       } catch (err) {
+        if (pinCurrent) return buildTrip(false);  // pins infeasible — replan fresh
         status.className = 'error';
         status.textContent = err.message;
       } finally {
@@ -272,11 +283,11 @@
       removeStop(id) {
         excluded.set(id, stopName(id));
         lockedIds.delete(id);
-        buildTrip();
+        buildTrip(true);       // keep the rest of the plan as-is
       },
       restore(id) {
         excluded.delete(id);
-        buildTrip();
+        buildTrip(true, id);   // bring it back without reshuffling the rest
       },
       reset() {
         excluded.clear();

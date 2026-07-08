@@ -61,6 +61,17 @@
         </select>
       </div>
       <div style="grid-column: 1 / -1;">
+        <label data-i18n="label.where">Where (optional — anywhere by default)</label>
+        <div class="chips" id="regions">
+          <span class="chip" data-cities="Cairo|Giza" data-i18n="region.cairo">Cairo &amp; Giza</span>
+          <span class="chip" data-cities="Alexandria" data-i18n="region.alex">Alexandria</span>
+          <span class="chip" data-cities="Luxor" data-i18n="region.luxor">Luxor</span>
+          <span class="chip" data-cities="Aswan|Abu Simbel|Kom Ombo|Edfu" data-i18n="region.aswan">Aswan &amp; Abu Simbel</span>
+          <span class="chip" data-cities="Hurghada|El Quseir|Ain Sokhna" data-i18n="region.redsea">Red Sea coast</span>
+          <span class="chip" data-cities="Sharm el-Sheikh|Dahab|Nuweiba|Taba|Saint Catherine" data-i18n="region.sinai">Sinai</span>
+        </div>
+      </div>
+      <div style="grid-column: 1 / -1;">
         <label data-i18n="label.interests">Interests (click to boost)</label>
         <div class="chips" id="chips">
           <span class="chip" data-cat="ancient" data-i18n="chip.ancient">Ancient Egypt</span>
@@ -104,6 +115,23 @@
       if (e.target.classList.contains('chip')) e.target.classList.toggle('on');
     });
 
+    // region chips: once the user touches them, they take over from any preset
+    let regionTouched = false;
+    $('regions').addEventListener('click', e => {
+      if (!e.target.classList.contains('chip')) return;
+      e.target.classList.toggle('on');
+      regionTouched = true;
+    });
+
+    function selectedCities() {
+      const on = [...document.querySelectorAll('#regions .chip.on')];
+      if (regionTouched) {
+        const cities = on.flatMap(c => c.dataset.cities.split('|'));
+        return cities.length ? cities : null;   // none selected = anywhere
+      }
+      return presetCities;                       // deep-linked preset scope
+    }
+
     // deep link support: build.html?preset=<id> (from Programs / homepage)
     (async () => {
       const wanted = new URLSearchParams(location.search).get('preset');
@@ -130,6 +158,8 @@
 
     async function buildTrip() {
       const status = $('status');
+      const submitBtn = document.querySelector('#plan-form button[type="submit"]');
+      submitBtn.disabled = true;
       status.className = '';
       status.textContent = t('status.computing');
 
@@ -143,7 +173,7 @@
         tier: $('tier').value,
         student: !!$('student').value,
         preferences: Object.keys(preferences).length ? preferences : null,
-        cities: presetCities,
+        cities: selectedCities(),
         locked: lockedIds.size ? [...lockedIds] : null,
         excluded: excluded.size ? [...excluded.keys()] : null,
         start_date: $('start-date').value || null,
@@ -167,6 +197,8 @@
       } catch (err) {
         status.className = 'error';
         status.textContent = err.message;
+      } finally {
+        submitBtn.disabled = false;
       }
     }
 
@@ -183,6 +215,10 @@
           <div><b>${plan.days.length}</b> ${tPlural(plan.days.length)}</div>
           <span class="spacer"></span>${saveUi}
         </div>
+        ${plan.days.length < lastParams.days
+          ? `<p class="warn no-print">${t('note.fewer_days')
+              .replace('{n}', plan.days.length).replace('{m}', lastParams.days)}</p>`
+          : ''}
         <div class="toolbar no-print">
           <button class="btn secondary" onclick="window.print()">${t('btn.print')}</button>
           <button class="btn secondary" onclick="downloadIcs(lastPlan, presetName || 'My Egypt Trip')">

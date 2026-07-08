@@ -22,6 +22,7 @@ from solver import load_places, solve, DATA_FILE
 from scheduler import schedule, format_time
 
 TRAVEL_OVERHEAD = 0.85  # fraction of trip hours assumed available for visits
+MIN_ZONE_DAY_FRACTION = 0.4  # a visited region must fill >=40% of a day
 
 
 def plan(budget, tier="foreign", student=False, days=3, hours_per_day=9.0,
@@ -32,12 +33,21 @@ def plan(budget, tier="foreign", student=False, days=3, hours_per_day=9.0,
         raise ValueError("No places match the given filters.")
 
     cap = round(days * hours_per_day * 60 * TRAVEL_OVERHEAD)
-    for _ in range(3):
+    # The selection may span at most one region per day, and each visited
+    # region must be worth a real chunk of a day — otherwise the optimizer
+    # scatters single short stops across half of Egypt.
+    min_zone = round(hours_per_day * 60 * MIN_ZONE_DAY_FRACTION)
+    for attempt in range(4):
         chosen, status = solve(places, budget, max_minutes=cap, weights=weights,
-                               locked=locked, excluded=excluded, spend=spend)
-        if chosen is None:
+                               locked=locked, excluded=excluded, spend=spend,
+                               max_zones=days, min_zone_minutes=min_zone)
+        if not chosen:  # infeasible or empty
+            if min_zone:
+                min_zone = 0  # relax "worth a day" (tight budgets/filters)
+                continue
             raise ValueError(f"No feasible plan (solver status: {status}). "
-                             "If you locked places, they may not fit the budget.")
+                             "If you locked places, they may not fit the budget "
+                             "or span more regions than you have days.")
         day_plans, unscheduled = schedule(chosen, days, hours_per_day)
         if not unscheduled:
             break

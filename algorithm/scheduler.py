@@ -44,20 +44,9 @@ def _fmt(minutes):
     return f"{minutes // 60:02d}:{minutes % 60:02d}"
 
 
-# Cities that share a day-trip region (so a single day never spans regions
-# that are hundreds of km apart). Cairo + Giza are one metro area; the
-# Luxor-Aswan corridor sites group by their nearest hub.
-_REGION = {
-    "Cairo": "greater-cairo", "Giza": "greater-cairo",
-    "Alexandria": "alexandria",
-    "Luxor": "luxor",
-    "Aswan": "aswan", "Edfu": "aswan", "Kom Ombo": "aswan",
-    "Abu Simbel": "abu-simbel",
-}
-
-
-def _zone(place):
-    return _REGION.get(place["city"], place["city"])
+# Region map shared with the solver (see regions.py): a single day never
+# spans regions that are hundreds of km apart.
+from regions import REGION as _REGION, zone as _zone  # noqa: F401 (re-export)
 
 
 def _clusters(places):

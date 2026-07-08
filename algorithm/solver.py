@@ -26,6 +26,8 @@ try:
 except ImportError:
     sys.exit("OR-Tools is required: pip install ortools")
 
+from regions import zone
+
 DATA_FILE = Path(__file__).resolve().parent.parent / "data" / "places.csv"
 
 
@@ -57,20 +59,35 @@ def load_places(path, tier, student, cities):
 #   premium -> add cost, so the plan spends the budget on premium attractions
 SPEND_BIAS = {"value": -1, "balanced": 0, "premium": 1}
 
+# When the user boosts interests, categories they did NOT pick fade rather
+# than compete at full strength — otherwise short, free, high-rated places
+# in other categories dominate the value-per-minute race and a "nature"
+# trip fills up with churches.
+UNLISTED_WEIGHT = 0.5
+
 
 def place_value(place, weights=None, spend_bias=0):
     """Integer objective value: preference-weighted rating, biased by cost."""
-    w = (weights or {}).get(place["category"], 1.0)
+    if weights:
+        w = weights.get(place["category"], UNLISTED_WEIGHT)
+    else:
+        w = 1.0
     return round(place["rating"] * 1000 * w) + spend_bias * place["price"]
 
 
 def solve(places, budget, max_minutes=None, weights=None, locked=None,
-          excluded=None, spend="balanced"):
+          excluded=None, spend="balanced", max_zones=None, min_zone_minutes=0):
     """locked: place ids that must be in the plan; excluded: ids that must not.
 
     Excluded places are removed before solving, so anything that requires
     them drops out too (via the parent-missing rule below). A locked id that
     isn't available (filtered, excluded, or wrong tier) raises ValueError.
+
+    max_zones caps how many geographic regions the selection may span (one
+    per trip day), and min_zone_minutes makes a region "earn its day": if
+    visited at all, it must contribute that much visit time (or everything
+    it has). Together they stop the optimizer scattering one short stop
+    across half of Egypt.
     """
     if excluded:
         places = [p for p in places if p["id"] not in set(excluded)]
@@ -88,6 +105,21 @@ def solve(places, budget, max_minutes=None, weights=None, locked=None,
     model.add(sum(x[p["id"]] * p["price"] for p in places) <= budget)
     if max_minutes is not None:
         model.add(sum(x[p["id"]] * p["visit_min"] for p in places) <= max_minutes)
+
+    if max_zones is not None:
+        zones: dict[str, list] = {}
+        for p in places:
+            zones.setdefault(zone(p), []).append(p)
+        z = {name: model.new_bool_var(f"zone:{name}") for name in zones}
+        for name, members in zones.items():
+            time_in_zone = sum(x[p["id"]] * p["visit_min"] for p in members)
+            for p in members:
+                model.add_implication(x[p["id"]], z[name])
+            # visiting a region must be worth it (capped by what it offers)
+            need = min(min_zone_minutes, sum(p["visit_min"] for p in members))
+            if need:
+                model.add(time_in_zone >= need).only_enforce_if(z[name])
+        model.add(sum(z.values()) <= max_zones)
 
     for p in places:
         parent = p["requires"].strip()
